@@ -1,7 +1,4 @@
-body {
-    background-color: #f8f9fa;
-  }
-  
+
   .form-label {
     font-weight: bold;
   }
@@ -26,4 +23,9 @@ body {
     position: absolute;
     right: 32vh;
     margin-top: -10rem;
+}
+
+.py-20 {
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
 }
