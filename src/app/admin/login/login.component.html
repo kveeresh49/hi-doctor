@@ -1,0 +1,108 @@
+<div class="container-fluid vh-100 m-0 p-0">
+    <div class="row h-100 m-0 p-0">
+      <!-- Left Section: Logo -->
+      <div
+        class="col-md-8 d-flex align-items-center justify-content-center bg-light"
+      >
+        <img
+          src="https://hdreports.hidoctor.me/Content/images/dashboard-bg-image.png"
+          alt="Logo"
+          class="img-fluid"
+        />
+        <div
+          class="col-sm-8"
+          style="
+            color: #fff;
+            font-size: 24px;
+            text-align: center;
+            margin-top: 90px;
+            position: absolute;
+            margin-top: 16rem;
+          "
+        >
+          <span>HiDoctor Reports / Dashboard Portal</span>
+        </div>
+      </div>
+      <!-- Right Section: Login Form -->
+      <div class="col-md-4 d-flex align-items-center" [formGroup]="adminLogin">
+        <form class="w-75">
+          <img
+            src="./../../../assets/demo/hi_doctor_logo.png"
+            alt="Logo"
+            class="img-logo"
+          />
+  
+          <div class="mb-3">
+            <label for="text" class="form-label"
+              >Company URL <span>*</span></label
+            >
+            <input
+              type="text"
+              class="form-control"
+              formControlName="companyUrl"
+              id="company_url"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="username" class="form-label"
+              >User Name <span>*</span>
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="username"
+              id="username"
+              placeholder="Enter your username"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label"
+              >Password <span>*</span></label
+            >
+            <input
+              type="password"
+              class="form-control"
+              formControlName="password"
+              id="password"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+  
+          <!-- <div class="mb-3">
+            <label for="logo" class="form-label">Upload Logo</label>
+            <input
+              type="file"
+              class="form-control"
+              id="logo"
+              formControlName="logo"
+              accept="image/*"
+            />
+            <div
+              *ngIf="
+                signupForm.get('logo').touched && signupForm.get('logo').invalid
+              "
+              class="text-danger"
+            >
+              Please upload an image file
+            </div>
+          </div> -->
+  
+          <div>
+            <button
+              type="submit"
+              [disabled]="!this.adminLogin.valid"
+              (click)="login()"
+              class="btn btn-primary"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  

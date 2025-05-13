@@ -1,0 +1,29 @@
+body {
+    background-color: #f8f9fa;
+  }
+  
+  .form-label {
+    font-weight: bold;
+  }
+  
+
+  .bg-light {
+    --bs-bg-opacity: 1;
+    background-color: rgb(34 116 198) !important;
+}
+
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+    margin-top: -10rem;
+    height: 35vh;
+    width: 70vh;
+}
+
+.img-logo {
+    width: 15vh;
+    height: 18vh;
+    position: absolute;
+    right: 32vh;
+    margin-top: -10rem;
+}
