@@ -1,0 +1,76 @@
+<p-fluid>
+    <form [formGroup]="employeeForm">
+        <div class="flex" style="margin-top: -0.5rem !important">
+            <div class="card flex flex-col gap-6 w-full">
+                <div class="font-semibold text-xl">Add Employee</div>
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <label for="firstname2">Firstname</label>
+                        <input pInputText id="firstname2" type="text" formControlName="firstname" />
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <label for="lastname2">Lastname</label>
+                        <input pInputText id="lastname2" type="text" formControlName="lastname" />
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <label for="email">Email</label>
+                        <input pInputText id="email" type="text" formControlName="email" />
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <label for="phone">Phone</label>
+                        <input pInputText id="phone" type="text" formControlName="phone" />
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <label for="employeeRole">Employee Role</label>
+                        <p-select id="employeeRole" optionLabel="name" placeholder="Select One" class="w-full" formControlName="employeeRole"></p-select>
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <label for="qualification">Qualification</label>
+                        <p-select id="qualification" optionLabel="name" placeholder="Select One" class="w-full" formControlName="qualification"></p-select>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap">
+                    <label for="address">Address</label>
+                    <textarea pTextarea id="address" rows="3" formControlName="address"></textarea>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <label for="country">Country</label>
+                        <p-select id="country" optionLabel="name" placeholder="Select One" formControlName="country" class="w-full"></p-select>
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <label for="state">State</label>
+                        <p-select id="state" optionLabel="name" placeholder="Select One" formControlName="state" class="w-full"></p-select>
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <label for="zip">Zip</label>
+                        <input pInputText id="zip" type="text" formControlName="zip" />
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <label for="country">Resume</label>
+                        <input pInputText id="resume" type="text" formControlName="resume" />
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <label for="profilePic">Upload Profile Pic</label>
+                        <p-select id="profilePic" optionLabel="name" placeholder="Select One" formControlName="profilePic" class="w-full"></p-select>
+                    </div>
+                </div>
+                <div class="flex flex-col md:flex-row gap-6 justify-center">
+                    <p-button label="Submit" [disabled]="!employeeForm.valid"></p-button>
+                </div>
+                
+            </div>
+        </div>
+    </form>
+</p-fluid>
