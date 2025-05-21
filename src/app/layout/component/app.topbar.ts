@@ -66,6 +66,7 @@ import { SessionStorageService } from '../service/session-storage.service';
 export class AppTopbar {
     items!: MenuItem[];
     companyUrl: string;
+    role: string;
 
     constructor(
         public layoutService: LayoutService,
@@ -73,6 +74,7 @@ export class AppTopbar {
         private router: Router
     ) {
         this.companyUrl = this.sessionStorage.getObject('user').companyUrl;
+        this.role  = this.sessionStorage.getObject('user').role;
     }
 
     toggleDarkMode() {
@@ -80,7 +82,8 @@ export class AppTopbar {
     }
 
     logOut() {
-        this.sessionStorage.clearSession();
+       // this.sessionStorage.clearSession();
+        this.sessionStorage.removeItem('user');
         this.router.navigate(['/login']);
     }
 }

@@ -1,0 +1,38 @@
+<p-toast></p-toast>
+<p-fluid>
+    <form [formGroup]="roleForm" (ngSubmit)="onSubmit()">
+        <div class="flex" style="margin-top: -0.5rem !important">
+            <div class="card flex flex-col gap-6 w-full">
+                <div class="font-semibold text-xl">Add Role</div>
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <label for="role">Role</label>
+                        <input pInputText id="role" type="text" formControlName="role" placeholder="Enter Role Name" />
+                        <div *ngIf="roleForm.get('role')?.invalid && roleForm.get('role')?.touched" class="p-error">Role name is required.</div>
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full" style="margin-top: 2rem">
+                        <button pButton type="submit" label="Submit" [disabled]="roleForm.invalid"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</p-fluid>
+
+<p-table [value]="roles" showGridlines [tableStyle]="{ 'min-width': '50rem' }">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Role Name</th>
+            <th style="width: 100px;">Actions</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-role let-rowIndex="rowIndex">
+        <tr>
+            <td>{{ role.role }}</td>
+            <td>
+                <button pButton type="button" icon="pi pi-trash" class="p-button-danger p-button-sm"
+                        (click)="deleteRole(role.id)"></button>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>

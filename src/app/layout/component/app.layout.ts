@@ -49,6 +49,10 @@ export class AppLayout {
             this.hideMenu();
         });
         this.user = this.sessionStorage.getObject('user');
+
+        if(!this.user) {  
+            this.router.navigate(['/login']);
+         }
         console.log(this.sessionStorage.getObject('user'));
     }
 

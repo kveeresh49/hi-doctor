@@ -38,8 +38,15 @@ export class AppMenu {
                             },
                             {
                                 label: 'Employee List',
-                                icon: 'pi pi-fw pi-bookmark'
+                                icon: 'pi pi-fw pi-bookmark',
+                                routerLink: ['/home/list-employee']                             
+                            },
+                            {
+                                label: 'Add Role',
+                                icon: 'pi pi-fw pi-bookmark',
+                                routerLink: ['/home/add-role']                             
                             }
+                            
                         ]
                     }
                 ]

@@ -1,0 +1,7 @@
+{
+  "apiBaseUrl": "https://api.example.com",
+  "companyName": "Raptakos, Brett & Co. Ltd.",
+  "featureToggle": {
+    "enableSignup": true
+  }
+}

@@ -1,4 +1,5 @@
-export const LoginUserData = [
-    {"companyUrl":"Dr. Reddy's","username":"vkoppula","password":"vkoppula", role:"mr"},
-    {"companyUrl":"Dr. Reddy's","username":"pramana","password":"pramana", role:"superAdmin"}
+export const ADMIN_USERS_LISt = [
+    { companyUrl: "Dr. Reddys", username: 'admin', password: 'admin', role: 'Super Admin', roleId:'Super_Admin' },
 ];
+
+export const countries = [{ name: 'Myanmar', code: 'my' }];
