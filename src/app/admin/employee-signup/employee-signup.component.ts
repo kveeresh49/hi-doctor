@@ -6,54 +6,85 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FluidModule } from 'primeng/fluid';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { LocationService } from '../../service/location.service';
-import { countries } from '../../constant';
-import { Stateregion } from '../../models/location';
-import { CountryDistrictCityFormComponent } from '../../lib/common/components/country-district-city-form/country-district-city-form.component';
-import { RolePermissionComponent } from '../role-permission/role-permission.component';
+import { ICountry, IDistrict, IRegion, ITownship } from '../../models/location';
 import { Role } from '../add-role/add-role.component';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CheckboxModule } from 'primeng/checkbox';
-import { CheckboxChangeEvent } from 'primeng/checkbox';
-import { Password } from 'primeng/password';
+import { AppConfigService } from '../../service/app-config.service';
+import { CountrySelectComponent } from '../../lib/common/components/country-select.component';
+import { StateMultiSelectComponent } from '../../lib/common/components/state-multi-select.component';
+import { DistrictMultiSelectComponent } from '../../lib/common/components/district-multi-select.component';
+import { CityMultiSelectComponent } from '../../lib/common/components/city-multi-select.component';
 
 @Component({
     selector: 'app-employee-signup',
     standalone: true,
-    imports: [CommonModule, CountryDistrictCityFormComponent, InputTextModule, FluidModule, ButtonModule, SelectModule, FormsModule, TextareaModule, ReactiveFormsModule, ToastModule, CheckboxModule],
+    imports: [
+        CommonModule,
+        InputTextModule,
+        FluidModule,
+        CountrySelectComponent,
+        CityMultiSelectComponent,
+        DistrictMultiSelectComponent,
+        ButtonModule,
+        SelectModule,
+        FormsModule,
+        TextareaModule,
+        ReactiveFormsModule,
+        ToastModule,
+        CheckboxModule,
+        StateMultiSelectComponent
+    ],
     templateUrl: './employee-signup.component.html',
     styleUrl: './employee-signup.component.scss',
     providers: [MessageService]
 })
 export class EmployeeSignupComponent implements OnInit {
     company = '';
-    companyId = '';
+    companyId: string = '';
+    companyName: string = '';
     employeeForm!: FormGroup;
-    countries = countries;
+    companyList: ICountry[] = [];
     listofCity: any[] = [];
     cities: { label: string; value: string }[] = [];
     employeeRoles = [];
-    states!: Stateregion[];
+    states!: any[];
     districts: { label: string; value: string }[] = [];
     roles: Role[] = [];
     employees: any[] = [];
+    selectedStatesList: any[] = [];
+    selectedDistricts: ITownship[] = [];
 
     constructor(
         private fb: FormBuilder,
-        private locationService: LocationService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private configService: AppConfigService
     ) {
         this.loadRoles();
+        this.getCountryList();
         this.loadEmployees();
         const role = JSON.parse(sessionStorage.getItem('user') || '{}').role;
         console.log('role', role);
     }
 
+    // get storageKey() {
+    //     if (sessionStorage) {
+    //         const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+    //         console.log('user', user);
+    //         this.companyName = user?.companyName;
+    //         this.company = user?.companyName;
+    //     }
+    //     return `roles_${this.companyName}`;
+    // }
+
+    getCountryFormControlName() {
+        return this.employeeForm.get('country') as any;
+    }
+
     get storageKey() {
         if (sessionStorage) {
             const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-            console.log('user', user);
             this.companyId = user?.companyId || 'HiDoctor';
             this.company = user?.companyUrl || 'HiDoctor';
         }
@@ -61,7 +92,38 @@ export class EmployeeSignupComponent implements OnInit {
     }
 
     get employeeStorageKey() {
-        return `employees_${this.companyId}`;
+        return `employees_${this.companyName}`;
+    }
+
+    ngOnInit(): void {
+        this.createForm();
+    }
+
+    createForm(): void {
+        this.employeeForm = this.fb.group({
+            firstName: ['', [Validators.required, Validators.minLength(2)]],
+            lastName: ['', [Validators.required, Validators.minLength(2)]],
+            email: ['', [Validators.required, Validators.email]],
+            phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
+            role: ['', Validators.required],
+            qualification: [''],
+            address: [''],
+            country: ['MY', Validators.required],
+            state: ['', Validators.required],
+            district: ['', Validators.required],
+            city: [''],
+            division: [''],
+            resume: [''],
+            profilePic: [''],
+            status: 'Active',
+            employeeType: 'Full Time',
+            Password: '123456'
+        });
+    }
+
+    // Location Changes Start here  - Country, State, District, City
+    getCountryList(): void {
+        this.companyList = this.configService.CompanyList || [];
     }
 
     loadRoles() {
@@ -76,34 +138,6 @@ export class EmployeeSignupComponent implements OnInit {
 
     saveEmployees() {
         sessionStorage.setItem(this.employeeStorageKey, JSON.stringify(this.employees));
-    }
-
-    ngOnInit(): void {
-        this.employeeForm = this.fb.group({
-            firstname: ['', [Validators.required, Validators.minLength(2)]],
-            lastname: ['', [Validators.required, Validators.minLength(2)]],
-            email: ['', [Validators.required, Validators.email]],
-            phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
-            employeeRole: ['', Validators.required],
-            qualification: [''],
-            address: ['', [Validators.required, Validators.minLength(10)]],
-            country: ['', Validators.required],
-            state: ['', Validators.required],
-            district: ['', Validators.required],
-            city: ['', Validators.required],
-            zip: [''],
-            resume: [''],
-            profilePic: [''],
-            areaView: [false],
-            areaEdit: [false],
-            stateView: [false],
-            stateEdit: [false],
-            cityView: [false],
-            cityEdit: [false],
-            employeeStatus: 'Active',
-            employeeType: 'Full Time',
-            Password: '123456'
-        });
     }
 
     onSubmit(): void {
@@ -123,51 +157,25 @@ export class EmployeeSignupComponent implements OnInit {
         }
     }
 
-    onCityChange(value: string) {
-        console.log('Selected City:', value);
+    onStateChange(state: IRegion[]) {
+        this.selectedStatesList = this.employeeForm.get('state')?.value || [];
+        this.employeeForm.get('district')?.reset();
+        this.employeeForm.get('city')?.reset();
+        this.districts = [];
     }
 
-    onStateChange() {
-        const stateSelected = this.employeeForm.get('state')?.value;
-        // You can add logic here if needed based on state selection
+    onDistrictChange(district: any[]) {
+        this.selectedDistricts = this.employeeForm.get('district')?.value || [];
+         this.employeeForm.get('city')?.reset();
+        this.listofCity = [];
+       // console.log('Selected District:', district);
     }
 
-    onDistrictChange() {
-        const districtSelected = this.employeeForm.get('district')?.value;
-        // You can add logic here if needed based on district selection
+    onCityChange(cities: ITownship[]) {
+        // this. = this.employeeForm.get('city')?.value || [];
     }
 
-    onStateViewChange(event: CheckboxChangeEvent) {
-        this.employeeForm.patchValue({
-            areaView: event.checked,
-            cityView: event.checked
-        });
-    }
-
-    onStateEditChange(event: CheckboxChangeEvent) {
-        this.employeeForm.patchValue({
-            areaEdit: event.checked,
-            cityEdit: event.checked
-        });
-    }
-
-    onCityViewChange(event: CheckboxChangeEvent) {
-        // No automatic selection for state based on city view
-    }
-
-    onCityEditChange(event: CheckboxChangeEvent) {
-        // No automatic selection for state based on city edit
-    }
-
-    onAreaViewChange(event: CheckboxChangeEvent) {
-        this.employeeForm.patchValue({
-            cityView: event.checked
-        });
-    }
-
-    onAreaEditChange(event: CheckboxChangeEvent) {
-        this.employeeForm.patchValue({
-            cityEdit: event.checked
-        });
+    onCountryChange(event: any) {
+        console.log('Selected Country:', event);
     }
 }

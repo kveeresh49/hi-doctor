@@ -6,12 +6,12 @@
                 <div class="font-semibold text-xl">Add Employee</div>
                 <div class="flex flex-col md:flex-row gap-6">
                     <div class="flex flex-wrap gap-2 w-full">
-                        <label for="firstname2">Firstname</label>
-                        <input pInputText id="firstname2" type="text" formControlName="firstname" />
+                        <label for="firstname2">FirstName</label>
+                        <input pInputText id="firstname2" type="text" formControlName="firstName" />
                     </div>
                     <div class="flex flex-wrap gap-2 w-full">
-                        <label for="lastname2">Lastname</label>
-                        <input pInputText id="lastname2" type="text" formControlName="lastname" />
+                        <label for="lastname2">LastName</label>
+                        <input pInputText id="lastname2" type="text" formControlName="lastName" />
                     </div>
                 </div>
 
@@ -29,7 +29,7 @@
                 <div class="flex flex-col md:flex-row gap-6">
                     <div class="flex flex-wrap gap-2 w-full">
                         <label for="employeeRole">Employee Role</label>
-                        <p-select id="employeeRole" optionLabel="role" [options]="roles" placeholder="Select One" class="w-full" formControlName="employeeRole"></p-select>
+                        <p-select id="employeeRole" optionLabel="role" [options]="roles" placeholder="Select One" class="w-full" formControlName="role"></p-select>
                     </div>
                     <div class="flex flex-wrap gap-2 w-full">
                         <label for="qualification">Qualification</label>
@@ -37,60 +37,33 @@
                     </div>
                 </div>
 
-                <div class="flex flex-wrap">
-                    <label for="address">Address</label>
-                    <textarea pTextarea id="address" rows="3" formControlName="address"></textarea>
-                </div>
-
-                <app-country-district-city-form [countries]="countries" [formGroup]="employeeForm" [countryControlName]="'country'" [stateControlName]="'state'" [districtControlName]="'district'" [cityControlName]="'city'" [zipControlName]="'zip'">
-                </app-country-district-city-form>
-                <div class="flex flex-col md:flex-row gap-6">
-                    <div class="flex col-md-4 flex-column gap-2">
-                        <label class="font-semibold">State Permission</label>
-                        <div class="flex align-items-center">
-                            <p-checkbox name="stateView" [binary]="true" formControlName="stateView" id="stateView" (onChange)="onStateViewChange($event)"></p-checkbox>
-                            <label for="stateView" class="ml-2">View</label>
-                        </div>
-                        <div class="flex align-items-center">
-                            <p-checkbox name="stateEdit" [binary]="true" formControlName="stateEdit" id="stateEdit" (onChange)="onStateEditChange($event)"></p-checkbox>
-                            <label for="stateEdit" class="ml-2">Edit</label>
-                        </div>
-                    </div>
-                    <div class="flex col-md-4 flex-column gap-2">
-                        <label class="font-semibold">Area Access</label>
-                        <div class="flex align-items-center">
-                            <p-checkbox name="areaView" [binary]="true" formControlName="areaView" id="areaView" (onChange)="onAreaViewChange($event)"></p-checkbox>
-                            <label for="areaView" class="ml-2">View</label>
-                        </div>
-                        <div class="flex align-items-center">
-                            <p-checkbox name="areaEdit" [binary]="true" formControlName="areaEdit" id="areaEdit" (onChange)="onAreaEditChange($event)"></p-checkbox>
-                            <label for="areaEdit" class="ml-2">Edit</label>
-                        </div>
-                    </div>
-
-                    <div class="flex col-md-4 flex-column gap-2">
-                        <label class="font-semibold">City Permission</label>
-                        <div class="flex align-items-center">
-                            <p-checkbox name="cityView" [binary]="true" formControlName="cityView" id="cityView"></p-checkbox>
-                            <label for="cityView" class="ml-2">View</label>
-                        </div>
-                        <div class="flex align-items-center">
-                            <p-checkbox name="cityEdit" [binary]="true" formControlName="cityEdit" id="cityEdit"></p-checkbox>
-                            <label for="cityEdit" class="ml-2">Edit</label>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="flex flex-col md:flex-row gap-6">
                     <div class="flex flex-wrap gap-2 w-full">
-                        <label for="country">Resume</label>
-                        <input pInputText id="resume" type="text" formControlName="resume" />
+                        <app-country-select
+                            [label]="'Country'"
+                            [options]="companyList"
+                            [optionLabel]="'label'"
+                            [optionValue]="'value'"
+                            [placeholder]="'Select Country'"
+                            [formGroup]="employeeForm"
+                            (onChange)="onCountryChange($event)"
+                            [disabled]="true"
+                            style="display: contents"
+                        >
+                        </app-country-select>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <app-state-multi-select style="display: contents" [formGroup]="employeeForm" (onRegionChangeSateEvent)="onStateChange($event)"></app-state-multi-select>
                     </div>
                     <div class="flex flex-wrap gap-2 w-full">
-                        <label for="profilePic">Upload Profile Pic</label>
-                        <p-select id="profilePic" optionLabel="name" placeholder="Select One" formControlName="profilePic" class="w-full"></p-select>
+                        <app-district-multi-select [formGroup]="employeeForm" (onDistrictChangeEvent)="onDistrictChange($event)" [selectedStates]="selectedStatesList" style="display: contents"></app-district-multi-select>
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <app-city-multi-select [formGroup]="employeeForm" (onCityChangeEvent)="onCityChange($event)" [selectedCities]="selectedDistricts" style="display: contents"></app-city-multi-select>
                     </div>
                 </div>
+
                 <div class="flex flex-col md:flex-row gap-6 justify-center">
                     <p-button label="Submit" [disabled]="!employeeForm.valid" (onClick)="onSubmit()"></p-button>
                 </div>

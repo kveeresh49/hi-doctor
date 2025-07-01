@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
+import { SessionStorageService } from '../service/session-storage.service';
 
 @Component({
     selector: 'app-menu',
@@ -17,6 +18,11 @@ import { AppMenuitem } from './app.menuitem';
 })
 export class AppMenu {
     model: MenuItem[] = [];
+    isAdmin: boolean = false;
+
+    constructor(private sessionStorage: SessionStorageService) {
+        this.isAdmin = this.sessionStorage?.getObject('user')?.role === 'Super Admin' ? true : false;
+    }
 
     ngOnInit() {
         this.model = [
@@ -34,19 +40,20 @@ export class AppMenu {
                             {
                                 label: 'Add Employee',
                                 icon: 'pi pi-fw pi-bookmark',
-                                routerLink: ['/home/add-employee']
+                                routerLink: ['/home/add-employee'],
+                                visible: this.isAdmin
                             },
                             {
                                 label: 'Employee List',
                                 icon: 'pi pi-fw pi-bookmark',
-                                routerLink: ['/home/list-employee']                             
+                                routerLink: ['/home/list-employee']
                             },
                             {
                                 label: 'Add Role',
                                 icon: 'pi pi-fw pi-bookmark',
-                                routerLink: ['/home/add-role']                             
+                                routerLink: ['/home/add-role'],
+                                visible: this.isAdmin
                             }
-                            
                         ]
                     }
                 ]

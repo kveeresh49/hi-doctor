@@ -1,116 +1,124 @@
 // State/Region Model
-export interface Stateregion {
-  StateRegion: string;
-  StateRegionMM: string;
-  StateRegionPCode: string;
-  TotalDistricts: string;
-  TotalTownships: string;
-  TotalVillageTractTowns: string;
-  TotalVillageWards: string;
+export interface IRegion {
+  regions: string;
+  regionsMM: string;
+  regionsPCode: string;
+  totalDistricts: string;
+  totalTownships: string;
+  totalVillageTractTowns: string;
+  totalVillageWards: string;
 }
 
 // Wrapper for state/region array
-export interface Stateregions {
-  stateregions: Stateregion[];
+export interface IRegions {
+  regionsList: IRegion[];
 }
 
 // District Model
-export interface District {
-  District: string;
-  DistrictMM: string;
-  DistrictPCode: string;
-  StateRegion?: string;
-  StateRegionMM: string;
-  StateRegionPCode: string;
-  TotalTownships: string;
-  TotalVillageTractTowns: string;
-  TotalVillageWards: string;
+export interface IDistrict {
+  district: string;
+  districtMM: string;
+  districtPCode: string;
+  stateRegion: string;
+  stateRegionMM: string;
+  stateRegionPCode: string;
+  totalTownships: string;
+  regions?: string;
+  regionsMM: string;
+  regionsPCode: string;
+  totalVillageTractTowns: string;
+  totalVillageWards: string;
 }
 
 // Wrapper for district array
-export interface Districts {
-  districts: District[];
+export interface IDistricts {
+  districts: IDistrict[];
 }
 
 // Township Model
-export interface Township {
-  Township: string;
-  TownshipMM: string;
-  TownshipPCode: string;
-  District: string;
-  DistrictMM: string;
-  DistrictPCode: string;
-  StateRegion: string;
-  StateRegionMM: string;
-  StateRegionPCode: string;
-  TotalVillageTractTowns: string;
-  TotalVillageWards: string;
+export interface ITownship {
+  township: string;
+  townshipMM: string;
+  townshipPCode: string;
+  district: string;
+  districtMM: string;
+  districtPCode: string;
+  regions: string;
+  regionsMM: string;
+  regionsPCode: string;
+  totalVillageTractTowns: string;
+  totalVillageWards: string;
 }
 
 // Wrapper for township array
-export interface Townships {
-  townships: Township[];
+export interface ITownships {
+  townships: ITownship[];
 }
 
 // VillageTractTown Model
-export interface VillageTractTown {
-  VillageTractTown: string;
-  VillageTractTownMM: string;
-  VillageTractTownPCode: string;
-  Township: string;
-  TownshipMM: string;
-  TownshipPCode: string;
-  District: string;
-  DistrictMM: string;
-  DistrictPCode: string;
-  StateRegion: string;
-  StateRegionMM: string;
-  StateRegionPCode: string;
+export interface IVillageTractTown {
+  villageTractTown: string;
+  villageTractTownMM: string;
+  villageTractTownPCode: string;
+  township: string;
+  townshipMM: string;
+  townshipPCode: string;
+  district: string;
+  districtMM: string;
+  districtPCode: string;
+  regions: string;
+  regionsMM: string;
+  regionsPCode: string;
 }
 
 // Wrapper for village tract/town array
-export interface VillageTractTowns {
-  villagetracttowns: VillageTractTown[];
+export interface IVillageTractTowns {
+  villageTractTowns: IVillageTractTown[];
 }
 
 // VillageWard Model
-export interface VillageWard {
-  VillageWard: string;
-  VillageWardMM: string;
-  VillageWardPCode: string;
-  VillageTractTown: string;
-  VillageTractTownMM: string;
-  VillageTractTownPCode: string;
-  Township: string;
-  TownshipMM: string;
-  TownshipPCode: string;
-  District: string;
-  DistrictMM: string;
-  DistrictPCode: string;
-  StateRegion: string;
-  StateRegionMM: string;
-  StateRegionPCode: string;
+export interface IVillageWard {
+  villageWard: string;
+  villageWardMM: string;
+  villageWardPCode: string;
+  villageTractTown: string;
+  villageTractTownMM: string;
+  villageTractTownPCode: string;
+  township: string;
+  townshipMM: string;
+  townshipPCode: string;
+  district: string;
+  districtMM: string;
+  districtPCode: string;
+  regions: string;
+  regionsMM: string;
+  regionsPCode: string;
 }
 
 // Wrapper for village ward array
-export interface VillageWards {
-  villagewards: VillageWard[];
+export interface IVillageWards {
+  villageWards: IVillageWard[];
 }
 
 // Unified Location Model (for all data at once)
-export interface Location {
-  stateregions: Stateregion[];
-  districts: District[];
-  townships: Township[];
-  villagetracttowns: VillageTractTown[];
-  villagewards: VillageWard[];
+export interface ILocation {
+  regions: IRegions[];
+  districts: IDistrict[];
+  townships: ITownship[];
+  villageTractTowns: IVillageTractTown[];
+  villageWards: IVillageWard[];
 }
 
 // Flexible response model (for partial data)
-export interface LocationResponse {
-  stateregions?: Stateregion[];
-  districts?: District[];
-  townships?: Township[];
-  villagetracttowns?: VillageTractTown[];
-  villagewards?: VillageWard[];
+export interface ILocationResponse {
+  regions?: IRegions[];
+  districts?: IDistrict[];
+  townships?: ITownship[];
+  villageTractTowns?: IVillageTractTown[];
+  villageWards?: IVillageWard[];
+}
+
+export interface ICountry {
+  label: string;
+  value: string;
 }

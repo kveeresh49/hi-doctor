@@ -1,7 +1,38 @@
 {
-  "apiBaseUrl": "https://api.example.com",
-  "companyName": "Raptakos, Brett & Co. Ltd.",
-  "featureToggle": {
-    "enableSignup": true
-  }
+    "apiBaseUrl": "https://api.example.com",
+    "companyName": "Raptakos, Brett & Co. Ltd.",
+    "featureToggle": {
+        "enableSignup": true
+    },
+    "defaultLanguage": "en",
+    "supportedLanguages": [
+        { "code": "en", "name": "English" },
+        { "code": "hi", "name": "Hindi" },
+        { "code": "mr", "name": "Marathi" },
+        { "code": "ta", "name": "Tamil" },
+        { "code": "te", "name": "Telugu" },
+        { "code": "bn", "name": "Bengali" }
+    ],
+    "divisions": [
+        { "name": "Cardicare", "code": 1 },
+        { "name": "Lifecare", "code": 2 },
+        { "name": "Pharmacare", "code": 3 },
+        { "name": "Oncare", "code": 4 },
+        { "name": "Synacare", "code": 5 },
+        { "name": "Renal Nephro", "code": 6 },
+        { "name": "CRM Care", "code": 7 },
+        { "name": "Criticalcare", "code": 8 },
+        { "name": "MSN Care", "code": 9 },
+        { "name": "Pharma", "code": 10 },
+        { "name": "Consumer Health", "code": 11 }
+    ],
+
+    "subscribedCompanyList": [
+        { "companyName": "Dr.Reddys", "companyId": "Dr_Reddys", "username": "admin", "password": "admin", "role": "Super Admin" },
+        { "companyName": "Raptakos, Brett & Co. Ltd.", "companyId": "Raptakos_Brett", "username": "admin", "password": "admin", "role": "Super Admin" },
+        { "companyName": "Sun Pharma", "companyId": "Sun_Pharma", "username": "admin", "password": "admin", "role": "Super Admin" },
+        { "companyName": "Cipla", "companyId": "Cipla", "username": "admin", "password": "admin", "role": "Super Admin" }
+    ],
+
+    "Countries": [{ "label": "Myanmar", "value": "MY" }]
 }

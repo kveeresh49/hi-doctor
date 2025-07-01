@@ -1,46 +1,46 @@
-<p-toast></p-toast>
+<!-- <p-toast></p-toast>
 
-  <p-table [value]="employees" [paginator]="true" [rows]="10" [sortField]="'firstname'" [sortMode]="'single'">
-    <ng-template pTemplate="header">
-      <tr>
-        <th pSortableColumn="firstname">First Name <p-sortIcon field="firstname"></p-sortIcon></th>
-        <th pSortableColumn="lastname">Last Name <p-sortIcon field="lastname"></p-sortIcon></th>
-        <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
-        <th pSortableColumn="phone">Phone <p-sortIcon field="phone"></p-sortIcon></th>
-        <th pSortableColumn="employeeRole.role">Role <p-sortIcon field="employeeRole.role"></p-sortIcon></th>
-        <th pSortableColumn="country">Country <p-sortIcon field="country"></p-sortIcon></th>
-        <th pSortableColumn="state.StateRegion">State <p-sortIcon field="state.StateRegion"></p-sortIcon></th>
-        <th pSortableColumn="district.District">District <p-sortIcon field="district.District"></p-sortIcon></th>
-        <th pSortableColumn="city.Township">City/Township <p-sortIcon field="city.Township"></p-sortIcon></th>
-        <th pSortableColumn="employeeStatus">Status <p-sortIcon field="employeeStatus"></p-sortIcon></th>
-        <th>Actions</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-employee>
-      <tr>
-        <td>{{employee.firstname}}</td>
-        <td>{{employee.lastname}}</td>
-        <td>{{employee.email}}</td>
-        <td>{{employee.phone}}</td>
-        <td>{{employee.employeeRole.role}}</td>
-        <td>{{employee.country}}</td>
-        <td>{{employee.state.StateRegion}}</td>
-        <td>{{employee.district.District}}</td>
-        <td>{{employee.city.Township}}</td>
-        <td>{{employee.employeeStatus}}</td>
-        <td>
-          <p-button
-            icon="pi pi-trash"
-            styleClass="p-button-danger p-button-sm"
-            (click)="deleteEmployee(employee)"
-            label="Delete">
-          </p-button>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-      <tr>
-          <td [attr.colspan]="11">No employees found.</td>
-      </tr>
-  </ng-template>
-  </p-table>
+<p-card
+    header="Employee List (Current User: {{ currentUser?.firstname }} - Role: {{ currentUser?.employeeRole?.role || 'N/A' }})">
+    <p-table [value]="employees" [paginator]="true" [rows]="10" [sortField]="'firstname'" [sortMode]="'single'">
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="firstname">First Name <p-sortIcon field="firstname"></p-sortIcon></th>
+                <th pSortableColumn="lastname">Last Name <p-sortIcon field="lastname"></p-sortIcon></th>
+                <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+                <th pSortableColumn="phone">Phone <p-sortIcon field="phone"></p-sortIcon></th>
+                <th pSortableColumn="employeeRole.role">Role <p-sortIcon field="employeeRole.role"></p-sortIcon></th>
+                <th pSortableColumn="country">Country <p-sortIcon field="country"></p-sortIcon></th>
+                <th pSortableColumn="state[0].StateRegion">State <p-sortIcon field="state[0].StateRegion"></p-sortIcon>
+                </th>
+                <th pSortableColumn="district[0].District">District <p-sortIcon
+                        field="district[0].District"></p-sortIcon></th>
+                <th pSortableColumn="city[0].Township">City/Township <p-sortIcon field="city[0].Township"></p-sortIcon>
+                </th>
+                <th pSortableColumn="division">Division <p-sortIcon field="division"></p-sortIcon></th>
+                <th pSortableColumn="employeeStatus">Status <p-sortIcon field="employeeStatus"></p-sortIcon></th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-employee>
+            <tr>
+                <td>{{ employee.firstname }}</td>
+                <td>{{ employee.lastname }}</td>
+                <td>{{ employee.email }}</td>
+                <td>{{ employee.phone }}</td>
+                <td>{{ employee.employeeRole?.role }}</td>
+                <td>{{ employee.country }}</td>
+                <td>{{ getNamesFromArray(employee.state, 'StateRegion') }}</td>
+                <td>{{ getNamesFromArray(employee.district, 'District') }}</td>
+                <td>{{ getNamesFromArray(employee.city, 'Township') }}</td>
+                <td>{{ employee.division?.join(', ') }}</td>
+                <td>{{ employee.employeeStatus }}</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td [attr.colspan]="12">No employees found or you don't have permission to view them.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-card> -->

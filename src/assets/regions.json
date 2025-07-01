@@ -1,0 +1,84 @@
+[
+    { "regions": "Kachin", "regionsMM": "\u1000\u1001\u103b\u1004\u103a", "regionsPCode": "MMR001", "totalDistricts": "4", "totalTownships": "18", "totalVillageTractTowns": "637", "totalVillageWards": "3342" },
+    { "regions": "Kayah", "regionsMM": "\u1000\u101a\u102c\u1038", "regionsPCode": "MMR002", "totalDistricts": "2", "totalTownships": "7", "totalVillageTractTowns": "91", "totalVillageWards": "768" },
+    { "regions": "Kayin", "regionsMM": "\u1000\u101b\u1004\u103a", "regionsPCode": "MMR003", "totalDistricts": "4", "totalTownships": "7", "totalVillageTractTowns": "395", "totalVillageWards": "2249" },
+    { "regions": "Chin", "regionsMM": "\u1001\u103b\u1004\u103a\u1038", "regionsPCode": "MMR004", "totalDistricts": "4", "totalTownships": "9", "totalVillageTractTowns": "491", "totalVillageWards": "1590" },
+    {
+        "regions": "Sagaing",
+        "regionsMM": "\u1005\u1005\u103a\u1000\u102d\u102f\u1004\u103a\u1038",
+        "regionsPCode": "MMR005",
+        "totalDistricts": "12",
+        "totalTownships": "37",
+        "totalVillageTractTowns": "1832",
+        "totalVillageWards": "6826"
+    },
+    {
+        "regions": "Tanintharyi",
+        "regionsMM": "\u1010\u1014\u1004\u103a\u1039\u101e\u102c\u101b\u102e",
+        "regionsPCode": "MMR006",
+        "totalDistricts": "3",
+        "totalTownships": "10",
+        "totalVillageTractTowns": "288",
+        "totalVillageWards": "1417"
+    },
+    {
+        "regions": "Bago (East)",
+        "regionsMM": "\u1015\u1032\u1001\u1030\u1038 (\u1021\u101b\u103e\u1031\u1037)",
+        "regionsPCode": "MMR007",
+        "totalDistricts": "2",
+        "totalTownships": "14",
+        "totalVillageTractTowns": "774",
+        "totalVillageWards": "3248"
+    },
+    {
+        "regions": "Bago (West)",
+        "regionsMM": "\u1015\u1032\u1001\u1030\u1038 (\u1021\u1014\u1031\u102c\u1000\u103a)",
+        "regionsPCode": "MMR008",
+        "totalDistricts": "2",
+        "totalTownships": "14",
+        "totalVillageTractTowns": "716",
+        "totalVillageWards": "3796"
+    },
+    { "regions": "Magway", "regionsMM": "\u1019\u1000\u103d\u1031\u1038", "regionsPCode": "MMR009", "totalDistricts": "5", "totalTownships": "25", "totalVillageTractTowns": "1577", "totalVillageWards": "5106" },
+    { "regions": "Mandalay", "regionsMM": "\u1019\u1014\u1039\u1010\u101c\u1031\u1038", "regionsPCode": "MMR010", "totalDistricts": "7", "totalTownships": "28", "totalVillageTractTowns": "1455", "totalVillageWards": "5256" },
+    { "regions": "Mon", "regionsMM": "\u1019\u103d\u1014\u103a", "regionsPCode": "MMR011", "totalDistricts": "2", "totalTownships": "10", "totalVillageTractTowns": "403", "totalVillageWards": "1412" },
+    { "regions": "Rakhine", "regionsMM": "\u101b\u1001\u102d\u102f\u1004\u103a", "regionsPCode": "MMR012", "totalDistricts": "5", "totalTownships": "17", "totalVillageTractTowns": "1080", "totalVillageWards": "4402" },
+    { "regions": "Yangon", "regionsMM": "\u101b\u1014\u103a\u1000\u102f\u1014\u103a", "regionsPCode": "MMR013", "totalDistricts": "4", "totalTownships": "47", "totalVillageTractTowns": "679", "totalVillageWards": "3039" },
+    {
+        "regions": "Shan (South)",
+        "regionsMM": "\u101b\u103e\u1019\u103a\u1038 (\u1010\u1031\u102c\u1004\u103a)",
+        "regionsPCode": "MMR014",
+        "totalDistricts": "5",
+        "totalTownships": "21",
+        "totalVillageTractTowns": "461",
+        "totalVillageWards": "6210"
+    },
+    {
+        "regions": "Shan (North)",
+        "regionsMM": "\u101b\u103e\u1019\u103a\u1038 (\u1019\u103c\u1031\u102c\u1000\u103a)",
+        "regionsPCode": "MMR015",
+        "totalDistricts": "11",
+        "totalTownships": "45",
+        "totalVillageTractTowns": "1186",
+        "totalVillageWards": "8716"
+    },
+    {
+        "regions": "Shan (East)",
+        "regionsMM": "\u101b\u103e\u1019\u103a\u1038 (\u1021\u101b\u103e\u1031\u1037)",
+        "regionsPCode": "MMR016",
+        "totalDistricts": "4",
+        "totalTownships": "15",
+        "totalVillageTractTowns": "238",
+        "totalVillageWards": "4064"
+    },
+    { "regions": "Ayeyarwady", "regionsMM": "\u1027\u101b\u102c\u101d\u1010\u102e", "regionsPCode": "MMR017", "totalDistricts": "6", "totalTownships": "26", "totalVillageTractTowns": "1975", "totalVillageWards": "12934" },
+    {
+        "regions": "Nay Pyi Taw",
+        "regionsMM": "\u1014\u1031\u1015\u103c\u100a\u103a\u1010\u1031\u102c\u103a",
+        "regionsPCode": "MMR018",
+        "totalDistricts": "2",
+        "totalTownships": "8",
+        "totalVillageTractTowns": "202",
+        "totalVillageWards": "973"
+    }
+]

@@ -1,177 +1,288 @@
-import { Component } from '@angular/core';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { SelectModule } from 'primeng/select';
-import { CommonModule } from '@angular/common';
-import { Table, TableModule } from 'primeng/table';
-import { ProductService } from './customer.service';
-import { MessageService } from 'primeng/api';
+import { Component, OnInit } from '@angular/core';
+import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { Employee, ReportingRole } from '../../models/employee'; // Ensure these interfaces are correctly defined
+import { CommonModule } from '@angular/common';
+import { CardModule } from 'primeng/card';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-    selector: 'app-list-employess',
-    standalone: true,
-    imports: [TableModule, IconFieldModule,ButtonModule,ToastModule, InputTextModule, InputIconModule, MultiSelectModule, SelectModule, CommonModule, CommonModule],
-    providers: [ProductService,MessageService],
-    templateUrl: './list-employees.component.html',
-    styleUrl: './list-employees.component.scss'
+  selector: 'app-list-employess',
+  standalone: true,
+  imports: [TableModule, ButtonModule, CardModule, ToastModule, CommonModule, TooltipModule],
+  providers: [MessageService],
+  templateUrl: './list-employees.component.html',
+  styleUrl: './list-employees.component.scss'
 })
-export class ListEmployeesComponent {
-    employees: any[] = [
-        {
-            firstname: 'Akhil',
-            lastname: 'Katta',
-            email: 'akhil.k@gmail.com',
-            phone: '9502788190',
-            employeeRole: { id: 'h8tz97i83', role: 'Regional Sales Manager' },
-            qualification: '',
-            address: 'TEST_ABC_ABC',
-            country: 'my',
-            state: { StateRegion: 'Kachin', StateRegionMM: 'ကချင်', StateRegionPCode: 'MMR001', TotalDistricts: '4', TotalTownships: '18', TotalVillageTractTowns: '637', TotalVillageWards: '3342' },
-            district: {
-                District: 'Myitkyina',
-                DistrictMM: 'မြစ်ကြီးနား',
-                DistrictPCode: 'MMR001D001',
-                StateRegion: 'Kachin',
-                StateRegionMM: 'ကချင်',
-                StateRegionPCode: 'MMR001',
-                TotalTownships: '6',
-                TotalVillageTractTowns: '228',
-                TotalVillageWards: '1142'
-            },
-            city: {
-                District: 'Myitkyina',
-                DistrictMM: 'မြစ်ကြီးနား',
-                DistrictPCode: 'MMR001D001',
-                StateRegion: 'Kachin',
-                StateRegionMM: 'ကချin',
-                StateRegionPCode: 'MMR001',
-                TotalVillageTractTowns: '32',
-                TotalVillageWards: '107',
-                Township: 'Myitkyina',
-                TownshipMM: 'မြစ်ကြီးနား',
-                TownshipPCode: 'MMR001001'
-            },
-            zip: '',
-            resume: 'TEST',
-            profilePic: '',
-            areaView: true,
-            areaEdit: true,
-            stateView: true,
-            stateEdit: true,
-            cityView: true,
-            cityEdit: true,
-            employeeStatus: 'Active',
-            employeeType: 'Full Time'
-        },
-        {
-            firstname: 'Jane',
-            lastname: 'Doe',
-            email: 'jane.d@example.com',
-            phone: '1234567890',
-            employeeRole: { id: 'ab123c456', role: 'Sales Representative' },
-            qualification: 'B.A. Business',
-            address: '456 Oak Ave',
-            country: 'us',
-            state: { StateRegion: 'California', StateRegionMM: '', StateRegionPCode: 'USCA', TotalDistricts: '58', TotalTownships: '0', TotalVillageTractTowns: '0', TotalVillageWards: '0' },
-            district: { District: 'Los Angeles County', DistrictMM: '', DistrictPCode: 'USCA001', StateRegion: 'California', StateRegionMM: '', StateRegionPCode: 'USCA', TotalTownships: '0', TotalVillageTractTowns: '0', TotalVillageWards: '0' },
-            city: {
-                District: 'Los Angeles County',
-                DistrictMM: '',
-                DistrictPCode: 'USCA001',
-                StateRegion: 'California',
-                StateRegionMM: '',
-                StateRegionPCode: 'USCA',
-                TotalVillageTractTowns: '0',
-                TotalVillageWards: '0',
-                Township: 'Los Angeles',
-                TownshipMM: '',
-                TownshipPCode: 'USCA001001'
-            },
-            zip: '90001',
-            resume: 'Resume_Jane.pdf',
-            profilePic: '',
-            areaView: true,
-            areaEdit: true,
-            stateView: true,
-            stateEdit: true,
-            cityView: true,
-            cityEdit: true,
-            employeeStatus: 'Active',
-            employeeType: 'Full Time'
-        },
-        {
-            firstname: 'John',
-            lastname: 'Smith',
-            email: 'john.s@example.com',
-            phone: '0987654321',
-            employeeRole: { id: 'xy789z012', role: 'Marketing Coordinator' },
-            qualification: 'M.S. Marketing',
-            address: '789 Pine St',
-            country: 'ca',
-            state: { StateRegion: 'Ontario', StateRegionMM: '', StateRegionPCode: 'CAON', TotalDistricts: '0', TotalTownships: '0', TotalVillageTractTowns: '0', TotalVillageWards: '0' },
-            district: { District: 'Toronto', DistrictMM: '', DistrictPCode: 'CAON001', StateRegion: 'Ontario', StateRegionMM: '', StateRegionPCode: 'CAON', TotalTownships: '0', TotalVillageTractTowns: '0', TotalVillageWards: '0' },
-            city: {
-                District: 'Toronto',
-                DistrictMM: '',
-                DistrictPCode: 'CAON001',
-                StateRegion: 'Ontario',
-                StateRegionMM: '',
-                StateRegionPCode: 'CAON',
-                TotalVillageTractTowns: '0',
-                TotalVillageWards: '0',
-                Township: 'Toronto',
-                TownshipMM: '',
-                TownshipPCode: 'CAON001001'
-            },
-            zip: 'M5V 2L9',
-            resume: 'Resume_John.pdf',
-            profilePic: '',
-            areaView: false,
-            areaEdit: true,
-            stateView: true,
-            stateEdit: false,
-            cityView: true,
-            cityEdit: true,
-            employeeStatus: 'Inactive',
-            employeeType: 'Part Time'
+export class ListEmployeesComponent implements OnInit {
+  employees: Employee[] = [];
+  allEmployees: Employee[] = [];
+  currentUser: Employee = {} as Employee;
+  private subordinateRoleIds: Set<string> = new Set(); // Using a Set for efficient lookup
+
+  // UPDATED: Reporting Roles to match the provided employee IDs
+  reportingRoles: ReportingRole[] = [
+    { id: 'cfoin9vg3', role: 'RSM', reporters: [{ id: '13l07b9dg', role: 'ASM', reporters: [{ id: 'qotug4mza', role: 'MR' }] }] }
+  ];
+
+  constructor(private messageService: MessageService) { }
+
+  ngOnInit() {
+    this.loadCurrentUser();
+    this.loadEmployees();
+    // Populate subordinate roles AFTER currentUser is loaded
+    if (this.currentUser && this.currentUser.employeeRole?.id) {
+      this.populateSubordinateRoleIds(this.currentUser.employeeRole.id, this.reportingRoles);
+    }
+    this.filterEmployeesBasedOnPermissions();
+  }
+
+  loadCurrentUser() {
+    const userData = sessionStorage.getItem('user');
+    if (userData) {
+      try {
+        this.currentUser = JSON.parse(userData);
+        console.log('Current user loaded:', this.currentUser.firstname, 'Role:', this.currentUser.employeeRole?.role);
+      } catch (e) {
+        console.error('Error parsing current user data from session storage:', e);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load user data.' });
+      }
+    } else {
+      console.warn('No user data found in session storage for key "user".');
+    }
+  }
+
+  loadEmployees() {
+    const companyId = this.currentUser?.companyId || 'Dr._Reddys'; // Use default if companyId is missing
+    const sessionData = sessionStorage.getItem(`employees_${companyId}`);
+    if (sessionData) {
+      try {
+        this.allEmployees = JSON.parse(sessionData);
+        // Add companyId to each employee for consistency if not already present
+        this.allEmployees = this.allEmployees.map(emp => ({ ...emp, companyId: emp.companyId || companyId }));
+      } catch (e) {
+        console.error(`Error parsing employee data for company "${companyId}" from session storage:`, e);
+        this.allEmployees = [];
+      }
+    } else {
+      console.warn(`No employee data found in session storage for key "employees_${companyId}".`);
+      // Fallback to a hardcoded list if sessionStorage is empty for demo purposes
+      
+    }
+  }
+
+  private populateSubordinateRoleIds(currentRoleId: string, hierarchy: ReportingRole[]): void {
+    this.subordinateRoleIds.clear(); // Clear previous subordinates
+
+    const findAndCollect = (node: ReportingRole, targetRoleId: string): boolean => {
+      if (node.id === targetRoleId) {
+        this.collectAllReporters(node);
+        return true;
+      }
+      if (node.reporters) {
+        for (const reporter of node.reporters) {
+          if (findAndCollect(reporter, targetRoleId)) {
+            return true;
+          }
         }
-    ];
+      }
+      return false;
+    };
 
-    constructor(private messageService: MessageService) {}
+    for (const roleNode of hierarchy) {
+      if (findAndCollect(roleNode, currentRoleId)) {
+        break;
+      }
+    }
+  }
 
-    ngOnInit() {
-        // No specific initialization needed for PrimeNG table with static data
+  private collectAllReporters(node: ReportingRole): void {
+    if (node.reporters) {
+      for (const reporter of node.reporters) {
+        this.subordinateRoleIds.add(reporter.id);
+        this.collectAllReporters(reporter);
+      }
+    }
+  }
+
+  isReporteeOfCurrentUser(employee: Employee): boolean {
+    if (!this.currentUser || employee.email === this.currentUser.email) {
+      return false;
+    }
+    return this.subordinateRoleIds.has(employee.employeeRole?.id || '');
+  }
+
+  hasStateOverlap(emp: Employee, user: Employee): boolean {
+    const userStates = new Set((user.state || []).map(s => s.StateRegionPCode));
+    const empStates = new Set((emp.state || []).map(s => s.StateRegionPCode));
+    return Array.from(empStates).some(pcode => userStates.has(pcode));
+  }
+
+  hasDistrictOverlap(emp: Employee, user: Employee): boolean {
+    const userDistricts = new Set((user.district || []).map(d => d.DistrictPCode));
+    const empDistricts = new Set((emp.district || []).map(d => d.DistrictPCode));
+    return Array.from(empDistricts).some(pcode => userDistricts.has(pcode));
+  }
+
+  hasCityOverlap(emp: Employee, user: Employee): boolean {
+    const userCities = new Set((user.city || []).map(c => c.TownshipPCode));
+    const empCities = new Set((emp.city || []).map(c => c.TownshipPCode));
+    return Array.from(empCities).some(pcode => userCities.has(pcode));
+  }
+
+  hasDivisionOverlap(emp: Employee, user: Employee): boolean {
+    const userDivisions = new Set(user.division || []);
+    const empDivisions = new Set(emp.division || []);
+    return Array.from(empDivisions).some(div => userDivisions.has(div));
+  }
+
+
+  filterEmployeesBasedOnPermissions() {
+    if (!this.currentUser || !this.currentUser.email) {
+      this.employees = [];
+      return;
     }
 
-    deleteEmployee(employee: any) {
-        // In a real application, you'd typically send a request to a backend API
-        // to delete the employee from the database.
-        console.log('Attempting to delete employee:', employee?.firstname, employee.lastname);
+    this.employees = this.allEmployees.filter(emp => {
+      // 1. Current user always sees their own entry
+      if (emp.email === this.currentUser.email) {
+        return true;
+      }
 
-        // Simulate API call success/failure
-        const success = Math.random() > 0.3; // 70% chance of success for demo
+      // 2. Filter by Company ID (must match current user's company)
+      if (emp.companyId !== this.currentUser.companyId) {
+        return false;
+      }
 
-        if (success) {
-            this.employees = this.employees.filter((e) => e.email !== employee.email); // Filter out the deleted employee
-            this.messageService.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: `Employee ${employee.firstname} ${employee.lastname} deleted successfully!`
-            });
-            console.log('Employee deleted successfully (client-side update).');
-        } else {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: `Failed to delete employee ${employee.firstname} ${employee.lastname}. Please try again.`
-            });
-            console.error('Failed to delete employee (simulated error).');
-        }
+      // 3. Filter by Reporting Hierarchy: Must be a reportee
+      if (!this.isReporteeOfCurrentUser(emp)) {
+        return false;
+      }
 
-        // After filtering, the p-table automatically updates because 'employees' is bound to [value]
+      // 4. Apply Location and Division-based Permissions (Hierarchical and Prioritized)
+
+      // Rule: If current user has stateView, they see all reportees within their states.
+      // This implicitly covers areas and cities within those states.
+      if (this.currentUser.stateView) {
+        return this.hasStateOverlap(emp, this.currentUser) && this.hasDivisionOverlap(emp, this.currentUser);
+      }
+
+      // Rule: Else if current user has areaView, they see all reportees within their districts/areas.
+      // This implicitly covers cities within those districts.
+      if (this.currentUser.areaView) {
+        return (this.hasDistrictOverlap(emp, this.currentUser) || this.hasCityOverlap(emp, this.currentUser)) &&
+               this.hasDivisionOverlap(emp, this.currentUser);
+      }
+
+      // Rule: Else if current user has cityView, they see all reportees within their cities.
+      if (this.currentUser.cityView) {
+        return this.hasCityOverlap(emp, this.currentUser) && this.hasDivisionOverlap(emp, this.currentUser);
+      }
+
+      // Rule: Else if current user only has division-based viewing (no specific location views)
+      if (this.currentUser.division && this.currentUser.division.length > 0) {
+        return this.hasDivisionOverlap(emp, this.currentUser);
+      }
+
+      // Default: If no specific view permission is met, and not self, then not visible.
+      return false;
+    });
+
+    console.log(`Displaying ${this.employees.length} employees after filtering.`);
+  }
+
+  canEdit(employee: Employee): boolean {
+    if (!this.currentUser || !this.currentUser.email) {
+      return false;
     }
+
+    // Current user can always edit themselves
+    if (employee.email === this.currentUser.email) {
+      return true;
+    }
+
+    // Must be a reportee to edit
+    if (!this.isReporteeOfCurrentUser(employee)) {
+      return false;
+    }
+
+    // Apply Location and Division-based Edit Permissions (Hierarchical and Prioritized)
+
+    // Rule: If current user has stateEdit, they can edit all reportees within their states.
+    if (this.currentUser.stateEdit) {
+      return this.hasStateOverlap(employee, this.currentUser) && this.hasDivisionOverlap(employee, this.currentUser);
+    }
+
+    // Rule: Else if current user has areaEdit, they can edit all reportees within their districts/areas.
+    if (this.currentUser.areaEdit) {
+      return (this.hasDistrictOverlap(employee, this.currentUser) || this.hasCityOverlap(employee, this.currentUser)) &&
+             this.hasDivisionOverlap(employee, this.currentUser);
+    }
+
+    // Rule: Else if current user has cityEdit, they can edit all reportees within their cities.
+    if (this.currentUser.cityEdit) {
+      return this.hasCityOverlap(employee, this.currentUser) && this.hasDivisionOverlap(employee, this.currentUser);
+    }
+
+    // Rule: Else if current user only has division-based editing
+    if (this.currentUser.division && this.currentUser.division.length > 0) {
+      return this.hasDivisionOverlap(employee, this.currentUser);
+    }
+
+    // Default: No edit access
+    return false;
+  }
+
+  deleteEmployee(employee: Employee) {
+    if (!this.canEdit(employee)) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Permission Denied',
+        detail: 'You do not have permission to delete this employee.'
+      });
+      return;
+    }
+
+    if (confirm(`Are you sure you want to delete ${employee.firstname} ${employee.lastname}?`)) {
+      this.allEmployees = this.allEmployees.filter(e => e.email !== employee.email);
+      const companyId = this.currentUser?.companyId || 'Dr._Reddys';
+      sessionStorage.setItem(`employees_${companyId}`, JSON.stringify(this.allEmployees));
+      this.filterEmployeesBasedOnPermissions(); // Re-filter the displayed list after deletion
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: `Employee ${employee.firstname} ${employee.lastname} deleted successfully!`
+      });
+    }
+  }
+
+  editEmployee(employee: Employee) {
+    if (!this.canEdit(employee)) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Permission Denied',
+        detail: 'You do not have permission to edit this employee.'
+      });
+      return;
+    }
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Edit Action',
+      detail: `Editing employee: ${employee.firstname} ${employee.lastname}`
+    });
+    console.log('Edit employee:', employee);
+    // Implement your actual edit logic here (e.g., open a dialog)
+  }
+
+  getNamesFromArray(arr: any[] | null | undefined, key: string): string {
+    if (!arr || arr.length === 0) {
+      return '';
+    }
+    return arr
+      .map((item) => item && item[key])
+      .filter(Boolean)
+      .join(', ');
+  }
 }

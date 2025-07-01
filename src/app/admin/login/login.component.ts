@@ -11,11 +11,14 @@ import { PasswordModule } from 'primeng/password';
 import { AppConfigService } from '../../service/app-config.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { DropdownModule } from 'primeng/dropdown';
+import { UnsubscriptionError } from 'rxjs';
+import { IUser } from '../../models/user';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [ButtonModule, CheckboxModule, ToastModule, InputTextModule, PasswordModule, FormsModule, ReactiveFormsModule, FormsModule, RouterModule, RippleModule],
+    imports: [ButtonModule, CheckboxModule, ToastModule, InputTextModule, PasswordModule, FormsModule, ReactiveFormsModule, FormsModule, RouterModule, RippleModule, DropdownModule],
     providers: [MessageService],
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss'
@@ -24,6 +27,7 @@ export class LoginComponent {
     adminLogin!: FormGroup;
     loginList: any[] = [];
     companyName!: string | null;
+    companyList!: Array<{ name: string; companyId: string; logo: string }>;
 
     constructor(
         private fb: FormBuilder,
@@ -34,22 +38,21 @@ export class LoginComponent {
     ) {
         this.createForm();
         console.log('LoginComponent initialized', this.configService);
-        this.companyName = this.configService.companyName;
+        console.log('Company List:', this.configService.subscribedCompanyList);
     }
 
     createForm(): void {
         this.adminLogin = this.fb.group({
-            companyUrl: ['', [Validators.required]],
+            companyName: ['', [Validators.required]],
             username: ['', [Validators.required]],
-            password: ['', [Validators.required]],
-            logo: [''] // Logo upload validation
+            password: ['', [Validators.required]]
         });
     }
 
     login(): boolean {
         this.loginList.push(this.adminLogin.getRawValue());
         const username = this.adminLogin.get('username')?.value;
-        const companyUrl = this.adminLogin.get('companyUrl')?.value;
+        const companyName = this.adminLogin.get('companyName')?.value;
         const password = this.adminLogin.get('password')?.value;
 
         // Check if form is valid
@@ -62,50 +65,70 @@ export class LoginComponent {
             return false;
         }
 
-        // Admin user login
-        if (username === 'admin') {
-            const adminUser: any = ADMIN_USERS_LISt.filter((user) => user.companyUrl === companyUrl && user.username === username && user.password === password);
-            if (adminUser.length === 0) {
+        // Admin Login Logic
+        if (username === 'admin' && password === 'admin') {
+            const adminUser = this.configService.subscribedCompanyList?.filter((user: IUser) => user?.companyName === companyName && user?.username === username && user?.password === password) ?? [];
+            if (adminUser?.length === 0) {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: `Invalid credentials. Please Reach out to Admin.`
+                    detail: `Invalid credentials. Please reach out to Admin.`
                 });
                 return false;
+            } else {
+                const user = {
+                    ...adminUser[0],
+                    loginTime: new Date().toISOString()
+                };
+                this.sessionStorage.setObject('user', user);
+                this.router.navigate(['home']);
+                return true;
             }
-
-            const user = {
-                username: adminUser[0]?.username,
-                role: adminUser[0].role,
-                companyUrl: this.adminLogin.value.companyUrl,
-                loginTime: new Date().toISOString(),
-                companyId: this.adminLogin.value.companyUrl.trim().replaceAll(' ', '_')
-            };
-            this.sessionStorage.setObject('user', user);
-            this.router.navigate(['home']);
-            return true;
-        }
-
-        // Generic employee login
-        const employees = JSON.parse(sessionStorage.getItem('employees_Dr._Reddys') || '[]');
-        const matchedEmployees: any = employees.filter((emp: any) => emp.email === username && emp.Password === password);
-        if (matchedEmployees.length === 0) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: `Invalid credentials. Please Reach out to Admin.`
-            });
+        } else {
             return false;
         }
-        const user = {
-            username: matchedEmployees[0]?.username,
-            role: matchedEmployees[0].role,
-            companyUrl: this.adminLogin.value.companyUrl,
-            loginTime: new Date().toISOString(),
-            companyId: this.adminLogin.value.companyUrl.trim().replaceAll(' ', '_')
-        };
-        this.sessionStorage.setObject('user', user);
-        this.router.navigate(['home']);
-        return true;
+
+        // // Admin user login
+        // if (username === 'admin') {
+        //     const adminUser: any = ADMIN_USERS_LISt.filter((user) => user.companyUrl === companyUrl && user.username === username && user.password === password);
+        //     if (adminUser.length === 0) {
+        //         this.messageService.add({
+        //             severity: 'error',
+        //             summary: 'Error',
+        //             detail: `Invalid credentials. Please Reach out to Admin.`
+        //         });
+        //         return false;
+        //     }
+
+        //     const user = {
+        //         username: adminUser[0]?.username,
+        //         role: adminUser[0].role,
+        //         companyUrl: this.adminLogin.value.companyUrl,
+        //         loginTime: new Date().toISOString(),
+        //         companyId: this.adminLogin.value.companyUrl.trim().replaceAll(' ', '_')
+        //     };
+        //     this.sessionStorage.setObject('user', user);
+        //     this.router.navigate(['home']);
+        //     return true;
+        // }
+
+        // // Generic employee login
+        // const employees = JSON.parse(sessionStorage.getItem('employees_Dr._Reddys') || '[]');
+        // const matchedEmployees: any = employees.filter((emp: any) => emp.email === username && emp.Password === password);
+        // if (matchedEmployees.length === 0) {
+        //     this.messageService.add({
+        //         severity: 'error',
+        //         summary: 'Error',
+        //         detail: `Invalid credentials. Please Reach out to Admin.`
+        //     });
+        //     return false;
+        // }
+        // const user = {
+        //     ...matchedEmployees[0],
+        //     companyId: this.adminLogin.value.companyUrl.trim().replaceAll(' ', '_')
+        // };
+        // this.sessionStorage.setObject('user', user);
+        // this.router.navigate(['home']);
+        // return true;
     }
 }
