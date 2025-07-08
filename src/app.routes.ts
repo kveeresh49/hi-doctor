@@ -22,6 +22,7 @@ export const appRoutes: Routes = [
              { path: 'add-employee', component:EmployeeSignupComponent },
             { path: 'list-employee', component: ListEmployeesComponent },
             { path: 'add-role', loadComponent: () => import('./app/admin/add-role/add-role.component').then((m) => m.AddRoleComponent), canActivate: [SuperAdminGuard] },
+            { path: 'privilege', loadComponent: () => import('./app/admin/employee-privilege/employee-privilege.component').then((m) => m.EmployeePrivilegeComponent), canActivate: [SuperAdminGuard] },
             { path: 'permission-denied', component: PermissionDeniedComponent }
         ]
     },

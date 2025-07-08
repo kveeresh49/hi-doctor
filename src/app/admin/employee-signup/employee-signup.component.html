@@ -39,7 +39,17 @@
 
                 <div class="flex flex-col md:flex-row gap-6">
                     <div class="flex flex-wrap gap-2 w-full">
-                        <app-country-select
+                        <label for="address">Address</label>
+                        <input pInputText id="address" type="text" formControlName="address" />
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <app-division [formGroup]="employeeForm" (onChange)="onDivisionChange($event)" [divisionName]="'division'" style="display: contents"> </app-division>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <app-country
                             [label]="'Country'"
                             [options]="companyList"
                             [optionLabel]="'label'"
@@ -47,20 +57,19 @@
                             [placeholder]="'Select Country'"
                             [formGroup]="employeeForm"
                             (onChange)="onCountryChange($event)"
-                            [disabled]="true"
                             style="display: contents"
                         >
-                        </app-country-select>
+                        </app-country>
                     </div>
 
                     <div class="flex flex-wrap gap-2 w-full">
-                        <app-state-multi-select style="display: contents" [formGroup]="employeeForm" (onRegionChangeSateEvent)="onStateChange($event)"></app-state-multi-select>
+                        <app-state [formGroup]="employeeForm" [controlName]="'state'" (onRegionChangeSateEvent)="onStateChange($event)" style="display: contents"></app-state>
                     </div>
                     <div class="flex flex-wrap gap-2 w-full">
-                        <app-district-multi-select [formGroup]="employeeForm" (onDistrictChangeEvent)="onDistrictChange($event)" [selectedStates]="selectedStatesList" style="display: contents"></app-district-multi-select>
+                        <app-district [formGroup]="employeeForm" [controlName]="'district'" (onDistrictChangeEvent)="onDistrictChange($event)" [selectedStates]="selectedStatesList" style="display: contents"></app-district>
                     </div>
                     <div class="flex flex-wrap gap-2 w-full">
-                        <app-city-multi-select [formGroup]="employeeForm" (onCityChangeEvent)="onCityChange($event)" [selectedCities]="selectedDistricts" style="display: contents"></app-city-multi-select>
+                        <app-city [formGroup]="employeeForm" (onCityChangeEvent)="onCityChange($event)" [selectedCities]="selectedDistricts" style="display: contents"></app-city>
                     </div>
                 </div>
 

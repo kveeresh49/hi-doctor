@@ -4,24 +4,26 @@ import { FormGroup, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '
 import { SelectModule } from 'primeng/select';
 
 @Component({
-    selector: 'app-country-select',
+    selector: 'app-country',
     standalone: true,
     imports: [CommonModule, SelectModule, FormsModule, CommonModule, ReactiveFormsModule],
     template: `
+      
+
         <div [formGroup]="formGroup" class="flex flex-wrap gap-2 w-full">
             <label>{{ label }}</label>
-            <p-select class="w-full" [options]="options" [optionLabel]="optionLabel" [optionValue]="optionValue" [placeholder]="placeholder" [disabled]="disabled" formControlName="country" (onChange)="onChange.emit($event.value)"> </p-select>
+            <p-select class="label-top w-full" [options]="options" [optionLabel]="optionLabel" [optionValue]="optionValue" [placeholder]="placeholder" [disabled]="disabled" formControlName="state" (onChange)="onChange.emit($event.value)"> </p-select>
         </div>
     `,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
-            useExisting: CountrySelectComponent,
+            useExisting: CountryComponent,
             multi: true
         }
     ]
 })
-export class CountrySelectComponent implements OnInit {
+export class CountryComponent implements OnInit {
     @Input() options: any[] = [];
     @Input() optionLabel: string = 'label';
     @Input() optionValue: string = 'value';

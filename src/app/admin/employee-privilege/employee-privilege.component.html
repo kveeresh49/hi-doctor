@@ -1,0 +1,64 @@
+<div class="flex flex-col md:flex-row gap-4 mb-3">
+    <p-multiSelect [options]="divisions" [(ngModel)]="selectedDivisions" optionLabel="name" optionValue="code" placeholder="Filter by Division" (onChange)="onDivisionChange()"></p-multiSelect>
+    <p-multiSelect [options]="roles" [(ngModel)]="selectedRoles" id="employeeRole" optionLabel="role" placeholder="Filter by Role" (onChange)="onRoleChange()"></p-multiSelect>
+</div>
+
+<p-table #table [value]="filteredEmployees" selectionMode="single" [(selection)]="selectedEmployee" [paginator]="true" [rows]="10" [globalFilterFields]="['firstName', 'lastName', 'email', 'role.role']">
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="firstName">
+                First Name
+                <p-columnFilter type="text" field="firstName" display="menu"></p-columnFilter>
+            </th>
+            <th pSortableColumn="lastName">
+                Last Name
+                <p-columnFilter type="text" field="lastName" display="menu"></p-columnFilter>
+            </th>
+            <th pSortableColumn="email">
+                Email
+                <p-columnFilter type="text" field="email" display="menu"></p-columnFilter>
+            </th>
+            <th pSortableColumn="role.role">
+                Role
+                <p-columnFilter type="text" field="role.role" display="menu"></p-columnFilter>
+            </th>
+            <th>Action</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-emp>
+        <tr>
+            <td>{{ emp.firstName }}</td>
+            <td>{{ emp.lastName }}</td>
+            <td>{{ emp.email }}</td>
+            <td>{{ emp.role?.role }}</td>
+            <td>
+                <button class="btn btn-primary" type="button" label="Edit Privileges" (click)="openPrivilegeDialog(emp)">Give Privileges</button>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<p-dialog header="Update Employee Privilege" [modal]="true" [(visible)]="showPrivilegeDialog" [style]="{ width: '50rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="true">
+    <p-table [value]="selectedEmployeesList" selectionMode="single">
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="firstName">First Name</th>
+                <th pSortableColumn="lastName">Last Name</th>
+                <th pSortableColumn="email">Email</th>
+                <th pSortableColumn="role.role">Role</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-emp>
+            <tr>
+                <td>{{ emp.firstName }}</td>
+                <td>{{ emp.lastName }}</td>
+                <td>{{ emp.email }}</td>
+                <td>{{ emp.role?.role }}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <app-update-employee-privilege [employee]="selectedEmployee" [companyId]="companyId" [selectedEmployeeDivisionList]="selectedEmployeeDivisionList" [selectedEmployee]="selectedEmployee"></app-update-employee-privilege>
+
+    <button type="button" pButton class="p-button-danger" (click)="showPrivilegeDialog = false">Close</button>
+</p-dialog>

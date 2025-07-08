@@ -6,31 +6,31 @@ import { LocationService } from '../../../service/location.service';
 import { IDistrict, IRegion, ITownship } from '../../../models/location';
 
 @Component({
-    selector: 'app-city-multi-select',
+    selector: 'app-city',
     standalone: true,
     imports: [CommonModule, MultiSelectModule, FormsModule, CommonModule, ReactiveFormsModule],
     styles: [
         `
             .label-top {
-                margin-top: 0.5rem;
+                margin-top: 0rem;
             }
         `
     ],
     template: `
-        <div [formGroup]="formGroup" class="flex-1">
+        <div [formGroup]="formGroup" class="flex flex-wrap gap-2 w-full">
             <label>City</label>
-            <p-multiSelect class="label-top" [options]="cityList" [optionLabel]="'label'" [optionValue]="'value'" [placeholder]="'Select District'" formControlName="city" (onChange)="onCityChange($event.value)"> </p-multiSelect>
+            <p-multiSelect class="label-top w-full" [options]="cityList" [optionLabel]="'label'" [optionValue]="'value'" [placeholder]="'Select City'" formControlName="city" (onChange)="onCityChange($event.value)"> </p-multiSelect>
         </div>
     `,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
-            useExisting: CityMultiSelectComponent,
+            useExisting: CityComponent,
             multi: true
         }
     ]
 })
-export class CityMultiSelectComponent implements OnInit, OnChanges {
+export class CityComponent implements OnInit, OnChanges {
     @Input() formGroup!: FormGroup;
     @Input() formControlName!: string;
     @Input() disabled: boolean = false;

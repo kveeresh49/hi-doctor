@@ -6,7 +6,7 @@ import { IRegion } from '../../../models/location';
 import { LocationService } from '../../../service/location.service';
 
 @Component({
-    selector: 'app-state-multi-select',
+    selector: 'app-state',
     standalone: true,
     imports: [CommonModule, MultiSelectModule, FormsModule, CommonModule, ReactiveFormsModule],
     styles: [
@@ -19,22 +19,21 @@ import { LocationService } from '../../../service/location.service';
     template: `
         <div [formGroup]="formGroup" class="flex flex-wrap gap-2 w-full">
             <label>State</label>
-            <p-multiSelect class="label-top w-full" [options]="stateList" [optionLabel]="'label'" [optionValue]="'value'" [placeholder]="'Select State'" formControlName="state" (onChange)="onStateChange($event.value)"> </p-multiSelect>
+            <p-multiSelect class="label-top w-full" [options]="stateList" [optionLabel]="'label'" [optionValue]="'value'" [placeholder]="'Select State'" formControlName="{{controlName}}" (onChange)="onStateChange($event.value)"> </p-multiSelect>
         </div>
     `,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
-            useExisting: StateMultiSelectComponent,
+            useExisting: StateComponent,
             multi: true
         }
     ]
 })
-export class StateMultiSelectComponent {
+export class StateComponent {
     @Input() formGroup: FormGroup = new FormGroup({});
-    @Input() formControl!: string;
-    @Input() formControlName: string = '';
     @Input() disabled: boolean = false;
+    @Input() controlName: string = 'state';
     @Output() onRegionChangeSateEvent = new EventEmitter<IRegion[]>();
     stateList: { label: string; value: IRegion }[] = [];
 

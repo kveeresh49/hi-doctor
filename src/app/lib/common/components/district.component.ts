@@ -6,33 +6,33 @@ import { LocationService } from '../../../service/location.service';
 import { IDistrict, IRegion } from '../../../models/location';
 
 @Component({
-    selector: 'app-district-multi-select',
+    selector: 'app-district',
     standalone: true,
     imports: [CommonModule, MultiSelectModule, FormsModule, CommonModule, ReactiveFormsModule],
     styles: [
         `
-            .label-top {
-                margin-top: 0.4rem;
+             .label-top {
+                margin-top: 0.0rem;
             }
         `
     ],
     template: `
-        <div [formGroup]="formGroup" class="flex-1">
+         <div [formGroup]="formGroup" class="flex flex-wrap gap-2 w-full">
             <label>District</label>
-            <p-multiSelect class="label-top" [options]="districtList" [optionLabel]="'label'" [optionValue]="'value'" [placeholder]="'Select District'" formControlName="district" (onChange)="onDistrictChange($event.value)"> </p-multiSelect>
+            <p-multiSelect class="label-top w-full" [options]="districtList" [optionLabel]="'label'" [optionValue]="'value'" [placeholder]="'Select District'" formControlName="{{controlName}}" (onChange)="onDistrictChange($event.value)"> </p-multiSelect>
         </div>
     `,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
-            useExisting: DistrictMultiSelectComponent,
+            useExisting: DistrictComponent,
             multi: true
         }
     ]
 })
-export class DistrictMultiSelectComponent implements OnInit, OnChanges {
+export class DistrictComponent implements OnInit, OnChanges {
     @Input() formGroup!: FormGroup;
-    @Input() formControlName!: string;
+    @Input() controlName: string = 'district';
     @Input() disabled: boolean = false;
     @Input() selectedStates: any[] = [];
     @Output() onDistrictChangeEvent = new EventEmitter<IRegion[]>();
@@ -49,13 +49,14 @@ export class DistrictMultiSelectComponent implements OnInit, OnChanges {
     }
     ngOnChanges(changes: SimpleChanges): void {
         this.districtList = [...this.allDistrictList];
+        console.log("log 2");
         if (changes['selectedStates'] && changes['selectedStates'].currentValue && Array.isArray(changes['selectedStates'].currentValue)) {
             const selectedRegionPCodes = changes['selectedStates'].currentValue.map((state: any) => state.regionsPCode);
             console.log('Selected Region PCodes:', selectedRegionPCodes);
             this.districtList = this.districtList.filter((district: { label: string; value: IDistrict }) => selectedRegionPCodes.includes(district.value['stateRegionPCode']));
-            this.formGroup.get(this.formControlName)?.reset();
+            this.formGroup.get(this.controlName)?.reset();
             this.formGroup.get('city')?.reset();
-            this.formGroup.get(this.formControlName)?.updateValueAndValidity();
+            this.formGroup.get(this.controlName)?.updateValueAndValidity();
             console.log('Filtered District List:', this.districtList);
         }
     }

@@ -48,12 +48,12 @@ export class AppConfigService {
         return this.config?.companyName || null;
     }
 
-    get subscribedCompanyList(): Array<IUser> | null {
-        return this.config?.subscribedCompanyList || null;
+    get subscribedCompanyList(): Array<IUser> | [] {
+        return this.config?.subscribedCompanyList || [];
     }
 
-    get divisions(): Array<{ name: string; code: number }> | null {
-        return this.config?.divisions || null;
+    get divisions(): Array<{ name: string; code: number }>  {
+        return this.config?.divisions || [];
     }
 
     get featureToggle(): AppConfig['featureToggle'] | null {

@@ -1,0 +1,35 @@
+<form [formGroup]="privilegeForm" class="mt-4">
+    <div class="flex" style="margin-top: -0.5rem !important">
+        <div class="card flex flex-col gap-6 w-full">
+            <div class="flex flex-col md:flex-row gap-6">
+                <div class="flex flex-wrap gap-5 w-full">
+                    <app-division [formGroup]="privilegeForm" [divisionName]="'division'" style="display: contents"> </app-division>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <button class="btn btn-primary" type="button" label="Edit Privileges" (click)="updateDivision()">Division Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="flex" style="margin-top: -0.5rem !important">
+        <div class="card flex flex-col gap-6 w-full">
+            <h6>Employee Location Details</h6>
+            <div class="flex flex-col md:flex-row gap-6">
+                <div class="flex flex-wrap gap-2 w-full">
+                    <app-state [formGroup]="privilegeForm" [controlName]="'state'" (onRegionChangeSateEvent)="onStateChange($event)" style="display: contents"></app-state>
+                </div>
+                <div class="flex flex-wrap gap-2 w-full">
+                    <app-district [formGroup]="privilegeForm" [controlName]="'district'" (onDistrictChangeEvent)="onDistrictChange($event)" [selectedStates]="selectedStatesList" style="display: contents"></app-district>
+                </div>
+                <div class="flex flex-wrap gap-2 w-full">
+                    <app-city [formGroup]="privilegeForm" (onCityChangeEvent)="onCityChange($event)" [selectedCities]="selectedDistricts" style="display: contents"></app-city>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    <button class="btn btn-success" style="width: 8rem; padding: 4px; margin: 0px; margin-top: 1rem" type="button" label="Edit Privileges" (click)="updateEmployeeLocation()" [disabled]="this.privilegeForm.invalid">Update Emp Location</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

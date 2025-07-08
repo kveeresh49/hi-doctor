@@ -6,36 +6,23 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FluidModule } from 'primeng/fluid';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { ICountry, IDistrict, IRegion, ITownship } from '../../models/location';
+import { ICountry, IRegion, ITownship } from '../../models/location';
 import { Role } from '../add-role/add-role.component';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AppConfigService } from '../../service/app-config.service';
-import { CountrySelectComponent } from '../../lib/common/components/country-select.component';
-import { StateMultiSelectComponent } from '../../lib/common/components/state-multi-select.component';
-import { DistrictMultiSelectComponent } from '../../lib/common/components/district-multi-select.component';
-import { CityMultiSelectComponent } from '../../lib/common/components/city-multi-select.component';
+import { CityComponent } from '../../lib/common/components/city.component';
+import { CountryComponent } from '../../lib/common/components/country.component';
+import { DistrictComponent } from '../../lib/common/components/district.component';
+import { StateComponent } from '../../lib/common/components/state.component';
+import { DivisionComponent } from '../../lib/common/components/division.component';
+
 
 @Component({
     selector: 'app-employee-signup',
     standalone: true,
-    imports: [
-        CommonModule,
-        InputTextModule,
-        FluidModule,
-        CountrySelectComponent,
-        CityMultiSelectComponent,
-        DistrictMultiSelectComponent,
-        ButtonModule,
-        SelectModule,
-        FormsModule,
-        TextareaModule,
-        ReactiveFormsModule,
-        ToastModule,
-        CheckboxModule,
-        StateMultiSelectComponent
-    ],
+    imports: [CommonModule, InputTextModule, FluidModule, CityComponent, DistrictComponent, ButtonModule, SelectModule, FormsModule, TextareaModule, ReactiveFormsModule, ToastModule, CheckboxModule, StateComponent, CountryComponent, DivisionComponent],
     templateUrl: './employee-signup.component.html',
     styleUrl: './employee-signup.component.scss',
     providers: [MessageService]
@@ -46,7 +33,6 @@ export class EmployeeSignupComponent implements OnInit {
     companyName: string = '';
     employeeForm!: FormGroup;
     companyList: ICountry[] = [];
-    listofCity: any[] = [];
     cities: { label: string; value: string }[] = [];
     employeeRoles = [];
     states!: any[];
@@ -55,6 +41,9 @@ export class EmployeeSignupComponent implements OnInit {
     employees: any[] = [];
     selectedStatesList: any[] = [];
     selectedDistricts: ITownship[] = [];
+     visible: boolean = false;
+
+    
 
     constructor(
         private fb: FormBuilder,
@@ -65,6 +54,8 @@ export class EmployeeSignupComponent implements OnInit {
         this.getCountryList();
         this.loadEmployees();
         const role = JSON.parse(sessionStorage.getItem('user') || '{}').role;
+        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+        this.companyId = user?.companyId || 'HiDoctor';
         console.log('role', role);
     }
 
@@ -92,7 +83,7 @@ export class EmployeeSignupComponent implements OnInit {
     }
 
     get employeeStorageKey() {
-        return `employees_${this.companyName}`;
+        return `employees_${this.companyId}`;
     }
 
     ngOnInit(): void {
@@ -111,13 +102,13 @@ export class EmployeeSignupComponent implements OnInit {
             country: ['MY', Validators.required],
             state: ['', Validators.required],
             district: ['', Validators.required],
-            city: [''],
-            division: [''],
+            city: ['', Validators.required],
+            division: ['', Validators.required],
             resume: [''],
             profilePic: [''],
             status: 'Active',
             employeeType: 'Full Time',
-            Password: '123456'
+            password: '123456'
         });
     }
 
@@ -166,9 +157,7 @@ export class EmployeeSignupComponent implements OnInit {
 
     onDistrictChange(district: any[]) {
         this.selectedDistricts = this.employeeForm.get('district')?.value || [];
-         this.employeeForm.get('city')?.reset();
-        this.listofCity = [];
-       // console.log('Selected District:', district);
+        this.employeeForm.get('city')?.reset();
     }
 
     onCityChange(cities: ITownship[]) {
@@ -178,4 +167,10 @@ export class EmployeeSignupComponent implements OnInit {
     onCountryChange(event: any) {
         console.log('Selected Country:', event);
     }
+
+    onDivisionChange(event: any) {
+        console.log('Selected Division:', event);
+    }
+
+
 }
