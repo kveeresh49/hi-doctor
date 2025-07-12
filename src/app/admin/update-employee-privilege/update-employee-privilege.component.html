@@ -1,20 +1,29 @@
+<p-toast></p-toast>
 <form [formGroup]="privilegeForm" class="mt-4">
-    <div class="flex" style="margin-top: -0.5rem !important">
-        <div class="card flex flex-col gap-6 w-full">
+    <div class="flex mb-2" style="margin-top: -0.5rem !important">
+        <div class="flex flex-col gap-6 w-full">
             <div class="flex flex-col md:flex-row gap-6">
                 <div class="flex flex-wrap gap-5 w-full">
-                    <app-division [formGroup]="privilegeForm" [divisionName]="'division'" style="display: contents"> </app-division>
+                    <app-division [formGroup]="privilegeForm" [divisionName]="'division'" style="display: contents"> </app-division> {{this.privilegeForm.get('division')?.touched}}
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <button class="btn btn-primary" type="button" label="Edit Privileges" (click)="updateDivision()">Division Update</button>
+                    <button class="btn btn-success" type="button" label="Edit Privileges" [disabled]="!this.privilegeForm.get('division')?.touched" (click)="updateDivision()">Division Update</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="flex" style="margin-top: -0.5rem !important">
-        <div class="card flex flex-col gap-6 w-full">
-            <h6>Employee Location Details</h6>
+    <div class="mt-4">
+        <h6>Employee Location Details</h6>
+        <div class="flex flex-wrap gap-4 mt-3">
+            @for (item of locationAdminList; track item) {
+                <div class="flex items-center gap-2">
+                    <p-checkbox [formControlName]="item.formControlName" [binary]="true" [inputId]="item.formControlName" />
+                    <label [for]="item.labelName"> {{ item.labelName }}</label>
+                </div>
+            }
+        </div>
+        <div class="flex flex-col gap-6 w-full mt-3">
             <div class="flex flex-col md:flex-row gap-6">
                 <div class="flex flex-wrap gap-2 w-full">
                     <app-state [formGroup]="privilegeForm" [controlName]="'state'" (onRegionChangeSateEvent)="onStateChange($event)" style="display: contents"></app-state>
@@ -27,9 +36,21 @@
                 </div>
 
                 <div class="flex flex-wrap gap-2">
-                    <button class="btn btn-success" style="width: 8rem; padding: 4px; margin: 0px; margin-top: 1rem" type="button" label="Edit Privileges" (click)="updateEmployeeLocation()" [disabled]="this.privilegeForm.invalid">Update Emp Location</button>
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <label for="employeeRole">Employee Reportees</label>
+                        <p-multiSelect id="employeeRole" optionLabel="role" [options]="reporteeRoles" [formControlName]="'reporteeRolesList'" placeholder="Select One" class="w-full"></p-multiSelect>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <div class="flex flex-col md:flex-row gap-6" style="justify-content: end">
+            <button class="btn btn-success" style="width: 8rem; padding: 4px; margin: 0px; margin-top: 1rem" type="button" label="Edit Privileges" (click)="updateEmployeeLocation()" [disabled]="this.privilegeForm.invalid">Update</button>
+            <button class="btn btn-danger" style="width: 8rem; padding: 4px; margin: 0px; margin-top: 1rem" type="button" label="Edit Privileges" (click)="close()">Close</button>
+        </div>
     </div>
+
+    <!-- @if (hasAnyInvalid()) {
+        <p-message severity="error" size="small" variant="simple"> At least one ingredient must be selected. </p-message>
+    } -->
 </form>

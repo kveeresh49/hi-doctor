@@ -40,8 +40,8 @@ export class AddRoleComponent {
     get storageKey() {
          if (sessionStorage) {
             const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-            this.companyId = user?.companyId || 'HiDoctor';
-            this.company = user?.companyUrl || 'HiDoctor';
+            this.companyId = user?.companyId;
+            this.company = user?.companyUrl;
         }
         return `roles_${this.companyId}`;
     }

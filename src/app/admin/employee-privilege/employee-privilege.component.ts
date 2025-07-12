@@ -33,7 +33,6 @@ export class EmployeePrivilegeComponent implements OnInit {
     visible: boolean = false;
     selectedEmployeesList: any[] = [];
     selectedEmployeeDivisionList: any[] = [];
-    
 
     constructor(
         private fb: FormBuilder,
@@ -43,6 +42,16 @@ export class EmployeePrivilegeComponent implements OnInit {
     get employeeStorageKey() {
         return `employees_${this.companyId}`;
     }
+
+    get employeeStorageRole() {
+        if (sessionStorage) {
+            const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+            this.companyId = user?.companyId;
+            this.company = user?.companyUrl;
+        }
+        return `roles_${this.companyId}`;
+    }
+
 
     ngOnInit() {
         const user = JSON.parse(sessionStorage.getItem('user') || '{}');
@@ -84,7 +93,7 @@ export class EmployeePrivilegeComponent implements OnInit {
     }
 
     updateReporteeRoles(currentRoleId: string) {
-        this.reporteeRoles = this.roles.filter((r:any) => r.id !== currentRoleId);
+        this.reporteeRoles = this.roles.filter((r: any) => r.id !== currentRoleId);
     }
 
     closeDialog() {
@@ -103,6 +112,9 @@ export class EmployeePrivilegeComponent implements OnInit {
 
     showDialog() {
         this.visible = true;
+
+        this.employees = JSON.parse(sessionStorage.getItem(this.employeeStorageKey) || '[]');
+        this.filterEmployees(); // Reapply filter if needed
     }
 
     openPrivilegeDialog(emp: any): any {
@@ -111,6 +123,10 @@ export class EmployeePrivilegeComponent implements OnInit {
         console.log('Selected Employee:', this.selectedEmployee);
         this.showPrivilegeDialog = true;
         this.selectedEmployeeDivisionList = emp.division || [];
-        console.log(this.selectedEmployeeDivisionList,"selectedEmployeeDivisionList")
+        console.log(this.selectedEmployeeDivisionList, 'selectedEmployeeDivisionList');
+    }
+
+    close(show:any) {
+        this.showPrivilegeDialog = false;
     }
 }

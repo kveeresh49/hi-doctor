@@ -11,15 +11,16 @@ import { IDistrict, IRegion } from '../../../models/location';
     imports: [CommonModule, MultiSelectModule, FormsModule, CommonModule, ReactiveFormsModule],
     styles: [
         `
-             .label-top {
-                margin-top: 0.0rem;
+            .label-top {
+                margin-top: 0rem;
             }
         `
     ],
     template: `
-         <div [formGroup]="formGroup" class="flex flex-wrap gap-2 w-full">
+        <div [formGroup]="formGroup" class="flex flex-wrap gap-2 w-full">
             <label>District</label>
-            <p-multiSelect class="label-top w-full" [options]="districtList" [optionLabel]="'label'" [optionValue]="'value'" [placeholder]="'Select District'" formControlName="{{controlName}}" (onChange)="onDistrictChange($event.value)"> </p-multiSelect>
+            <p-multiSelect class="label-top w-full" [options]="districtList" [optionLabel]="'label'" [optionValue]="'value'" [placeholder]="'Select District'" formControlName="{{ controlName }}" (onChange)="onDistrictChange($event.value)">
+            </p-multiSelect>
         </div>
     `,
     providers: [
@@ -48,17 +49,16 @@ export class DistrictComponent implements OnInit, OnChanges {
         });
     }
     ngOnChanges(changes: SimpleChanges): void {
-        this.districtList = [...this.allDistrictList];
-        console.log("log 2");
-        if (changes['selectedStates'] && changes['selectedStates'].currentValue && Array.isArray(changes['selectedStates'].currentValue)) {
-            const selectedRegionPCodes = changes['selectedStates'].currentValue.map((state: any) => state.regionsPCode);
-            console.log('Selected Region PCodes:', selectedRegionPCodes);
-            this.districtList = this.districtList.filter((district: { label: string; value: IDistrict }) => selectedRegionPCodes.includes(district.value['stateRegionPCode']));
-            this.formGroup.get(this.controlName)?.reset();
-            this.formGroup.get('city')?.reset();
-            this.formGroup.get(this.controlName)?.updateValueAndValidity();
-            console.log('Filtered District List:', this.districtList);
-        }
+        setTimeout(() => {
+            this.districtList = [...this.allDistrictList];
+            console.log('log 2');
+            if (changes['selectedStates'] && changes['selectedStates'].currentValue && Array.isArray(changes['selectedStates'].currentValue)) {
+                const selectedRegionPCodes = changes['selectedStates'].currentValue.map((state: any) => state.regionsPCode);
+                console.log('Selected Region PCodes:', selectedRegionPCodes);
+                this.districtList = this.districtList.filter((district: { label: string; value: IDistrict }) => selectedRegionPCodes.includes(district.value['stateRegionPCode']));
+                console.log('Filtered District List:', this.districtList);
+            }
+        }, 10);
     }
 
     ngOnInit(): void {}

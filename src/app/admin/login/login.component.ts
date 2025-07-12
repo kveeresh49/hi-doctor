@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators, FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { SessionStorageService } from '../../layout/service/session-storage.service';
-import { ADMIN_USERS_LISt } from '../../constant';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -12,7 +11,6 @@ import { AppConfigService } from '../../service/app-config.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
-import { UnsubscriptionError } from 'rxjs';
 import { IUser } from '../../models/user';
 
 @Component({
@@ -28,6 +26,7 @@ export class LoginComponent {
     loginList: any[] = [];
     companyName!: string | null;
     companyList!: Array<{ name: string; companyId: string; logo: string }>;
+    companyId: string = '';
 
     constructor(
         private fb: FormBuilder,
@@ -85,50 +84,26 @@ export class LoginComponent {
                 return true;
             }
         } else {
+            const subscribedCompany = this.configService.subscribedCompanyList?.find((user: IUser) => user?.companyName === companyName);
+            this.companyId = subscribedCompany?.companyId || '';
+            const employees = this.sessionStorage.getObject(`employees_${this.companyId}`) || [];
+            const employeesList = employees.filter((emp: any) => emp.email === username && emp.password === password);
+            if (employeesList && !!this.companyId) {
+                const user = {
+                    ...employeesList[0],
+                    loginTime: new Date().toISOString()
+                };
+                this.sessionStorage.setObject('user', user);
+                this.router.navigate(['home']);
+                return true;
+            }
+
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: `Invalid credentials. Please reach out to Admin.`
+            });
             return false;
         }
-
-        // // Admin user login
-        // if (username === 'admin') {
-        //     const adminUser: any = ADMIN_USERS_LISt.filter((user) => user.companyUrl === companyUrl && user.username === username && user.password === password);
-        //     if (adminUser.length === 0) {
-        //         this.messageService.add({
-        //             severity: 'error',
-        //             summary: 'Error',
-        //             detail: `Invalid credentials. Please Reach out to Admin.`
-        //         });
-        //         return false;
-        //     }
-
-        //     const user = {
-        //         username: adminUser[0]?.username,
-        //         role: adminUser[0].role,
-        //         companyUrl: this.adminLogin.value.companyUrl,
-        //         loginTime: new Date().toISOString(),
-        //         companyId: this.adminLogin.value.companyUrl.trim().replaceAll(' ', '_')
-        //     };
-        //     this.sessionStorage.setObject('user', user);
-        //     this.router.navigate(['home']);
-        //     return true;
-        // }
-
-        // // Generic employee login
-        // const employees = JSON.parse(sessionStorage.getItem('employees_Dr._Reddys') || '[]');
-        // const matchedEmployees: any = employees.filter((emp: any) => emp.email === username && emp.Password === password);
-        // if (matchedEmployees.length === 0) {
-        //     this.messageService.add({
-        //         severity: 'error',
-        //         summary: 'Error',
-        //         detail: `Invalid credentials. Please Reach out to Admin.`
-        //     });
-        //     return false;
-        // }
-        // const user = {
-        //     ...matchedEmployees[0],
-        //     companyId: this.adminLogin.value.companyUrl.trim().replaceAll(' ', '_')
-        // };
-        // this.sessionStorage.setObject('user', user);
-        // this.router.navigate(['home']);
-        // return true;
     }
 }

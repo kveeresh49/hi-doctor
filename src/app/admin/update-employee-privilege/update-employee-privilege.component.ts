@@ -1,16 +1,20 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { FormBuilder, FormControlName, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DivisionComponent } from '../../lib/common/components/division.component';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { IDistrict, IRegion } from '../../models/location';
 import { CityComponent } from '../../lib/common/components/city.component';
 import { DistrictComponent } from '../../lib/common/components/district.component';
 import { StateComponent } from '../../lib/common/components/state.component';
+import { CheckboxModule } from 'primeng/checkbox';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
     selector: 'app-update-employee-privilege',
-    imports: [ReactiveFormsModule, DivisionComponent, MultiSelectModule, CityComponent, DistrictComponent, StateComponent],
+    imports: [ReactiveFormsModule, DivisionComponent, ToastModule,MultiSelectModule, CityComponent, DistrictComponent, StateComponent, CheckboxModule],
     templateUrl: './update-employee-privilege.component.html',
+    providers: [MessageService],
     styleUrls: ['./update-employee-privilege.component.scss']
 })
 export class UpdateEmployeePrivilegeComponent implements OnInit, OnChanges {
@@ -19,63 +23,117 @@ export class UpdateEmployeePrivilegeComponent implements OnInit, OnChanges {
     cities: any[] = [];
 
     @Input() companyId: string = '';
+    @Input() email: string = '';
     @Input() company: string = '';
     @Input() employee!: any;
+    @Output() closePopup = new EventEmitter<boolean>();
     privilegeForm!: FormGroup;
-    showPrivilegeDialog: boolean = false;
     employees: any[] = [];
     filteredEmployees: any[] = [];
     selectedEmployeesList: any[] = [];
     @Input() selectedEmployeeDivisionList: any[] = [];
     @Input() selectedEmployee!: any;
+    @Input() showPrivilegeDialog!: boolean;
     selectedDistricts: any[] = [];
+    locationAdminList = [
+        { labelName: 'State Admin', formControlName: 'stateAdmin' },
+        { labelName: 'District Admin', formControlName: 'districtAdmin' },
+        { labelName: 'City Admin', formControlName: 'cityAdmin' }
+    ];
+    reporteeRoles: any[] = [];
 
-    constructor(private fb: FormBuilder) {}
+
+    constructor(
+        private fb: FormBuilder,
+        private messageService: MessageService
+    ) {}
+
+    get employeeStorageRole() {
+        if (sessionStorage) {
+            const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+            this.companyId = user?.companyId;
+            this.company = user?.companyUrl;
+        }
+        return `roles_${this.companyId}`;
+    }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['selectedEmployeeDivisionList']) {
-            this.privilegeForm?.get('division')?.setValue(this.selectedEmployeeDivisionList);
-        }
+        this.reporteeRoles = JSON.parse(sessionStorage?.getItem(`roles_${this.companyId}`) || '[]') || [];
 
-        if (changes['employee']) {
-            console.log('Employee changed:', changes['employee'].currentValue);
-            this.privilegeForm?.get('division')?.setValue(changes['employee']?.currentValue?.division || []);
-            this.privilegeForm?.get('state')?.setValue(changes['employee']?.currentValue?.empWorkState || []);
-            this.privilegeForm?.get('district')?.setValue(changes['employee']?.currentValue?.empWorkDistrict || []);
-            this.privilegeForm?.get('city')?.setValue(changes['employee']?.currentValue?.empWorkCity || []);
+        const isDialogClosed = changes['showPrivilegeDialog']?.currentValue === false;
+
+        if (this.email) {
+            let selectedEmployee = JSON.parse(sessionStorage?.getItem(`employees_${this.companyId}`) || '[]').find((emp: any) => emp.email === this.email);
+            this.reporteeRoles = [...this.reporteeRoles.filter((r: any) => r.id !== this.selectedEmployee?.role?.id)];
+            // Handle selectedEmployeeDivisionList change when dialog is closed and employee hasn't changed
+            if (selectedEmployee && !isDialogClosed) {
+                this.privilegeForm?.get('division')?.setValue(this.selectedEmployeeDivisionList);
+            }
+
+            // Handle employee change when dialog is closed
+            if (selectedEmployee && !isDialogClosed) {
+                const emp = selectedEmployee || {};
+                this.selectedStatesList = emp.empWorkState || [];
+                this.selectedDistricts = emp.empWorkDistrict || [];
+                this.privilegeForm?.patchValue({
+                    division: emp.division || [],
+                    state: emp.empWorkState || [],
+                    district: emp.empWorkDistrict || [],
+                    city: emp.empWorkCity || [],
+                    stateAdmin: emp.empWorkStateAdmin || false,
+                    districtAdmin: emp.empWorkDistrictAdmin || false,
+                    cityAdmin: emp.empWorkCityAdmin || false,
+                    reporteeRolesList: emp.reporteeRolesList || []
+                });
+            }
+
+            // Reset form when dialog is closed
+            if (isDialogClosed) {
+                this.privilegeForm?.reset();
+            }
         }
     }
 
-    // ngOnInit() {
-    //     this.privilegeForm = this.fb.group({
-    //         division: [[], Validators.required],
-    //         state: [[], Validators.required],
-    //         district: [[]],
-    //         city: [[]],
-    //         stateAdmin: [[]],
-    //         districtAdmin: [[]],
-    //         cityAdmin: [[]]
-    //     });
+    ngOnInit() {
+        this.privilegeForm = this.fb.group({
+            division: [this.sanitizeArray(this.employee?.division), Validators.required],
+            state: [this.sanitizeArray(this.employee?.empWorkState), Validators.required],
+            district: [this.sanitizeArray(this.employee?.empWorkDistrict)],
+            city: [this.sanitizeArray(this.employee?.empWorkCity)],
+            stateAdmin: [false],
+            districtAdmin: [false],
+            cityAdmin: [false],
+            reporteeRolesList: []
+        });
 
-    //     this.selectedEmployeeDivisionList.forEach((division) => {
-    //         this.privilegeForm.controls['division'].value.push(division);
-    //     });
-    // }
-ngOnInit() {
-    this.privilegeForm = this.fb.group({
-        division: [this.sanitizeArray(this.employee?.division), Validators.required],
-        state: [this.sanitizeArray(this.employee?.empWorkState), Validators.required],
-        district: [this.sanitizeArray(this.employee?.empWorkDistrict)],
-        city: [this.sanitizeArray(this.employee?.empWorkCity)],
-        stateAdmin: [this.sanitizeArray(this.employee?.stateAdmin)],
-        districtAdmin: [this.sanitizeArray(this.employee?.districtAdmin)],
-        cityAdmin: [this.sanitizeArray(this.employee?.cityAdmin)]
-    });
-}
+        this.privilegeForm.get('stateAdmin')?.valueChanges.subscribe((val) => {
+            if (val) {
+                this.privilegeForm.patchValue({ districtAdmin: true, cityAdmin: true }, { emitEvent: false });
+            }
+        });
 
-sanitizeArray(val: any) {
-    return Array.isArray(val) ? val : val ? [val] : [];
-}
+        this.privilegeForm.get('districtAdmin')?.valueChanges.subscribe((val) => {
+            if (val) {
+                this.privilegeForm.patchValue({ cityAdmin: true }, { emitEvent: false });
+            }
+        });
+
+        setTimeout(() => {
+            if (this.privilegeForm.get('stateAdmin')?.value) {
+                this.privilegeForm.patchValue({ districtAdmin: true, cityAdmin: true }, { emitEvent: false });
+            } else if (this.privilegeForm.get('districtAdmin')?.value) {
+                this.privilegeForm.patchValue({ cityAdmin: true }, { emitEvent: false });
+            }
+        });
+    }
+
+    get formKeys(): string[] {
+        return Object.keys(this.privilegeForm.controls);
+    }
+
+    sanitizeArray(val: any) {
+        return Array.isArray(val) ? val : val ? [val] : [];
+    }
     updateDivision() {
         if (!this.selectedEmployee) {
             console.error('No employee selected for updating division.');
@@ -88,10 +146,14 @@ sanitizeArray(val: any) {
             }
         });
         sessionStorage.setItem(`employees_${this.companyId}`, JSON.stringify(employees));
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: `Employee Division details updated successfully.`
+        });
     }
 
     onStateChange(state: IRegion[]) {
-        console.log('Selected States:', state);
         this.selectedStatesList = this.privilegeForm.get('state')?.value || [];
         this.privilegeForm.get('district')?.reset();
         this.privilegeForm.get('city')?.reset();
@@ -121,11 +183,24 @@ sanitizeArray(val: any) {
                     if (this.privilegeForm.get('city')?.value?.length > 0) {
                         emp.empWorkCity = [...this.privilegeForm.get('city')?.getRawValue()];
                     }
+                    const { stateAdmin, districtAdmin, cityAdmin } = { stateAdmin: this.privilegeForm.get('stateAdmin')?.value, districtAdmin: this.privilegeForm.get('districtAdmin')?.value, cityAdmin: this.privilegeForm.get('cityAdmin')?.value };
+                    emp['empWorkStateAdmin'] = stateAdmin;
+                    emp['empWorkDistrictAdmin'] = districtAdmin;
+                    emp['empWorkCityAdmin'] = cityAdmin;
+                    emp['reporteeRolesList'] = this.privilegeForm.get('reporteeRolesList')?.value || [];
                 }
             });
             sessionStorage.setItem(`employees_${this.companyId}`, JSON.stringify(employees));
+
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: `Employee Details updated successfully.`
+            });
         }
     }
 
-    // Other methods...
+    close() {
+        this.closePopup.emit(false);
+    }
 }
