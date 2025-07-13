@@ -8,6 +8,7 @@ import { Dialog, DialogModule } from 'primeng/dialog';
 import { AppConfigService } from '../../service/app-config.service';
 import { ButtonModule } from 'primeng/button';
 import { UpdateEmployeePrivilegeComponent } from '../update-employee-privilege/update-employee-privilege.component';
+import { IDivisions } from '../../models/Ilocation';
 
 @Component({
     selector: 'app-employee-privilege',
@@ -24,7 +25,7 @@ export class EmployeePrivilegeComponent implements OnInit {
     privilegeForm!: FormGroup;
     companyId: any;
     company: any;
-    divisions: { name: string; code: number }[] = [];
+    divisions: IDivisions[] = [];
     roles: any;
     countries: { label: string; value: string }[] = [];
     selectedDivisions: any[] = [];
@@ -51,7 +52,6 @@ export class EmployeePrivilegeComponent implements OnInit {
         }
         return `roles_${this.companyId}`;
     }
-
 
     ngOnInit() {
         const user = JSON.parse(sessionStorage.getItem('user') || '{}');
@@ -126,7 +126,7 @@ export class EmployeePrivilegeComponent implements OnInit {
         console.log(this.selectedEmployeeDivisionList, 'selectedEmployeeDivisionList');
     }
 
-    close(show:any) {
+    close(show: any) {
         this.showPrivilegeDialog = false;
     }
 }

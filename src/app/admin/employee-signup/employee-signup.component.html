@@ -28,19 +28,20 @@
 
                 <div class="flex flex-col md:flex-row gap-6">
                     <div class="flex flex-wrap gap-2 w-full">
-                        <label for="employeeRole">Employee Role</label>
-                        <p-select id="employeeRole" optionLabel="role" [options]="roles" placeholder="Select One" class="w-full" formControlName="role"></p-select>
-                    </div>
-                    <div class="flex flex-wrap gap-2 w-full">
                         <label for="qualification">Qualification</label>
-                        <p-select id="qualification" optionLabel="name" placeholder="Select One" class="w-full" formControlName="qualification"></p-select>
+                        <input pInputText id="qualification" type="text" formControlName="qualification" />
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <label for="address">Address</label>
+                        <textarea rows="2" cols="30" pTextarea formControlName="address"></textarea>
                     </div>
                 </div>
 
                 <div class="flex flex-col md:flex-row gap-6">
                     <div class="flex flex-wrap gap-2 w-full">
-                        <label for="address">Address</label>
-                        <input pInputText id="address" type="text" formControlName="address" />
+                        <label for="employeeRole">Employee Role</label>
+                        <p-select id="employeeRole" optionLabel="role" [options]="roles" placeholder="Select One" class="w-full" formControlName="role"></p-select>
                     </div>
                     <div class="flex flex-wrap gap-2 w-full">
                         <app-division [formGroup]="employeeForm" (onChange)="onDivisionChange($event)" [divisionName]="'division'" style="display: contents"> </app-division>
@@ -49,27 +50,14 @@
 
                 <div class="flex flex-col md:flex-row gap-6">
                     <div class="flex flex-wrap gap-2 w-full">
-                        <app-country
-                            [label]="'Country'"
-                            [options]="companyList"
-                            [optionLabel]="'label'"
-                            [optionValue]="'value'"
-                            [placeholder]="'Select Country'"
-                            [formGroup]="employeeForm"
-                            (onChange)="onCountryChange($event)"
-                            style="display: contents"
-                        >
-                        </app-country>
+                        <label for="experience">No of Years of Experience</label>
+                        <input pInputText id="experience" type="text" formControlName="experience" />
                     </div>
-
-                    <div class="flex flex-wrap gap-2 w-full">
-                        <app-state [formGroup]="employeeForm" [controlName]="'state'" (onRegionChangeSateEvent)="onStateChange($event)" style="display: contents"></app-state>
-                    </div>
-                    <div class="flex flex-wrap gap-2 w-full">
-                        <app-district [formGroup]="employeeForm" [controlName]="'district'" (onDistrictChangeEvent)="onDistrictChange($event)" [selectedStates]="selectedStatesList" style="display: contents"></app-district>
-                    </div>
-                    <div class="flex flex-wrap gap-2 w-full">
-                        <app-city [formGroup]="employeeForm" (onCityChangeEvent)="onCityChange($event)" [selectedCities]="selectedDistricts" style="display: contents"></app-city>
+                    <div class="flex flex-wrap gap-2 w-full mt-5">
+                        <label for="employeeRole">Resume</label>
+                        <p-fileupload mode="basic" name="demo[]" chooseIcon="pi pi-upload" url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*" maxFileSize="1000000" [auto]="true" chooseLabel="Browse" />
+                        <label for="employeeRole">Profile Pic</label>
+                        <p-fileupload mode="basic" name="demo[]" chooseIcon="pi pi-upload" url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*" maxFileSize="1000000" [auto]="true" chooseLabel="Browse" />
                     </div>
                 </div>
 

@@ -53,6 +53,12 @@ export class AppMenu {
                                 icon: 'pi pi-fw pi-bookmark',
                                 routerLink: ['/home/add-role'],
                                 visible: this.isAdmin
+                            },
+                             {
+                                label: 'privilege',
+                                icon: 'pi pi-fw pi-bookmark',
+                                routerLink: ['/home/privilege'],
+                                visible: this.isAdmin
                             }
                         ]
                     }

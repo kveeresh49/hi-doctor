@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormGroup, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { LocationService } from '../../../service/location.service';
-import { IDistrict, IRegion, ITownship } from '../../../models/location';
+import { IDistrict, IRegion, ITownship } from '../../../models/Ilocation';
 
 @Component({
     selector: 'app-city',

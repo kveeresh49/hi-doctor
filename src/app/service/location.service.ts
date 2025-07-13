@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { IDistrict, IDistricts, IRegion, IRegions, ITownship, ITownships } from '../models/location';
+import { IDistrict, IDistricts, IRegion, IRegions, ITownship, ITownships } from '../models/Ilocation';
 
 // Import IStateRegion interface (adjust the path as needed)
 

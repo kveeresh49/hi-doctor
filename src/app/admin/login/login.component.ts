@@ -1,109 +1,122 @@
 import { Component } from '@angular/core';
-import { ReactiveFormsModule, FormGroup, FormBuilder, Validators, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { SessionStorageService } from '../../layout/service/session-storage.service';
+import { AppConfigService } from '../../service/app-config.service';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
-import { AppConfigService } from '../../service/app-config.service';
-import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
 import { IUser } from '../../models/user';
+import { ICompany } from '../../models/Ilocation';
 
 @Component({
-    selector: 'app-login',
-    standalone: true,
-    imports: [ButtonModule, CheckboxModule, ToastModule, InputTextModule, PasswordModule, FormsModule, ReactiveFormsModule, FormsModule, RouterModule, RippleModule, DropdownModule],
-    providers: [MessageService],
-    templateUrl: './login.component.html',
-    styleUrl: './login.component.scss'
+  selector: 'app-login',
+  standalone: true,
+  imports: [
+    ButtonModule, CheckboxModule, ToastModule, InputTextModule, PasswordModule,
+    FormsModule, ReactiveFormsModule, RouterModule, RippleModule, DropdownModule
+  ],
+  providers: [MessageService],
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.scss'
 })
 export class LoginComponent {
-    adminLogin!: FormGroup;
-    loginList: any[] = [];
-    companyName!: string | null;
-    companyList!: Array<{ name: string; companyId: string; logo: string }>;
-    companyId: string = '';
+  loginForm!: FormGroup;
+  companyList!: Array<ICompany[]>;
+  companyId: string = '';
+  companyDisplayName:string = '';
 
-    constructor(
-        private fb: FormBuilder,
-        private router: Router,
-        private sessionStorage: SessionStorageService,
-        private configService: AppConfigService,
-        private messageService: MessageService
-    ) {
-        this.createForm();
-        console.log('LoginComponent initialized', this.configService);
-        console.log('Company List:', this.configService.subscribedCompanyList);
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private sessionStorage: SessionStorageService,
+    private configService: AppConfigService,
+    private messageService: MessageService
+  ) {
+    this.createForm();
+    console.log('LoginComponent initialized');
+    this.companyDisplayName =  this.configService.companyName;
+  }
+
+  createForm(): void {
+    this.loginForm = this.fb.group({
+      companyName: ['', Validators.required],
+      username: ['', Validators.required],
+      password: ['', Validators.required]
+    });
+  }
+
+  login(): boolean {
+    if (!this.loginForm.valid) {
+      this.showError('Please fill in all required fields.');
+      return false;
     }
 
-    createForm(): void {
-        this.adminLogin = this.fb.group({
-            companyName: ['', [Validators.required]],
-            username: ['', [Validators.required]],
-            password: ['', [Validators.required]]
-        });
+    const { username, companyName, password } = this.loginForm.value;
+
+    return this.isAdminLogin(username, password)
+      ? this.handleAdminLogin(username, companyName, password)
+      : this.handleEmployeeLogin(username, companyName, password);
+  }
+
+  isAdminLogin(username: string, password: string): boolean {
+    return username === 'admin' && password === 'admin';
+  }
+
+  handleAdminLogin(username: string, companyName: string, password: string): boolean {
+    const adminUser = this.configService.subscribedCompanyList?.find(
+      (user: IUser) => user.companyName === companyName && user.username === username && user.password === password
+    );
+
+    if (!adminUser) {
+      this.showError('Invalid credentials. Please reach out to Admin.');
+      return false;
     }
 
-    login(): boolean {
-        this.loginList.push(this.adminLogin.getRawValue());
-        const username = this.adminLogin.get('username')?.value;
-        const companyName = this.adminLogin.get('companyName')?.value;
-        const password = this.adminLogin.get('password')?.value;
+    this.saveUserSession(adminUser);
+    this.router.navigate(['home']);
+    return true;
+  }
 
-        // Check if form is valid
-        if (!this.adminLogin.valid) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: `Please fill in all required fields.`
-            });
-            return false;
-        }
+  handleEmployeeLogin(username: string, companyName: string, password: string): boolean {
+    const subscribedCompany = this.configService.subscribedCompanyList?.find(
+      (user: IUser) => user.companyName === companyName
+    );
 
-        // Admin Login Logic
-        if (username === 'admin' && password === 'admin') {
-            const adminUser = this.configService.subscribedCompanyList?.filter((user: IUser) => user?.companyName === companyName && user?.username === username && user?.password === password) ?? [];
-            if (adminUser?.length === 0) {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: `Invalid credentials. Please reach out to Admin.`
-                });
-                return false;
-            } else {
-                const user = {
-                    ...adminUser[0],
-                    loginTime: new Date().toISOString()
-                };
-                this.sessionStorage.setObject('user', user);
-                this.router.navigate(['home']);
-                return true;
-            }
-        } else {
-            const subscribedCompany = this.configService.subscribedCompanyList?.find((user: IUser) => user?.companyName === companyName);
-            this.companyId = subscribedCompany?.companyId || '';
-            const employees = this.sessionStorage.getObject(`employees_${this.companyId}`) || [];
-            const employeesList = employees.filter((emp: any) => emp.email === username && emp.password === password);
-            if (employeesList && !!this.companyId) {
-                const user = {
-                    ...employeesList[0],
-                    loginTime: new Date().toISOString()
-                };
-                this.sessionStorage.setObject('user', user);
-                this.router.navigate(['home']);
-                return true;
-            }
+    this.companyId = subscribedCompany?.companyId || '';
+    const employees = this.sessionStorage.getObject(`employees_${this.companyId}`) || [];
 
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: `Invalid credentials. Please reach out to Admin.`
-            });
-            return false;
-        }
+    const matchedEmployee = employees.find(
+      (emp: any) => emp.email === username && emp.password === password
+    );
+
+    if (!matchedEmployee || !this.companyId) {
+      this.showError('Invalid credentials. Please reach out to Admin.');
+      return false;
     }
+
+    this.saveUserSession(matchedEmployee);
+    this.router.navigate(['home']);
+    return true;
+  }
+
+  saveUserSession(user: any): void {
+    this.sessionStorage.setObject('user', {
+      ...user,
+      loginTime: new Date().toISOString()
+    });
+  }
+
+  showError(message: string): void {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: message
+    });
+  }
 }

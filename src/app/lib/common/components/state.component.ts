@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, forwardRef } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormGroup, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
-import { IRegion } from '../../../models/location';
+import { IRegion } from '../../../models/Ilocation';
 import { LocationService } from '../../../service/location.service';
 
 @Component({

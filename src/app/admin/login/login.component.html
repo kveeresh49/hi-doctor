@@ -5,10 +5,10 @@
             <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
                 <div class="text-center mb-8">
                     <img src="./../../../assets/demo/Udpated_Raptakos_logo1.png" alt="Logo" class="w-32 h-32 mb-4" style="margin-left: 12rem" />
-                    <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">{{ this.companyName }}!</div>
+                    <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">{{ this.companyDisplayName }}!</div>
                     <span class="text-muted-color font-medium">Sign in to continue</span>
                 </div>
-                <form class="w-full" [formGroup]="adminLogin">
+                <form class="w-full" [formGroup]="loginForm">
                     <div>
                         <label for="company" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Company</label>
 
@@ -27,7 +27,7 @@
                             </div>
                             <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
                         </div>
-                        <p-button label="Sign In" styleClass="w-full" [disabled]="!this.adminLogin.valid" (click)="login()"></p-button>
+                        <p-button label="Sign In" styleClass="w-full" [disabled]="!this.loginForm.valid" (click)="login()"></p-button>
                     </div>
                 </form>
             </div>

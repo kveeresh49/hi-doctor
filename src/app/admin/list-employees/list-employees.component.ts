@@ -6,6 +6,7 @@ import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
+import { IEmployee } from '../../models/Ilocation';
 
 @Component({
     selector: 'app-list-employess',
@@ -16,42 +17,141 @@ import { TooltipModule } from 'primeng/tooltip';
     styleUrl: './list-employees.component.scss'
 })
 export class ListEmployeesComponent implements OnInit {
-    employeeDataList = []; // This should be set via API
-    currentUser: any;
-    filteredEmployees = [];
+    employeeDataList: IEmployee[] = [];
+    filteredEmployees: IEmployee[] = [];
+    loggedInUser: any;
+    currentUserDetails: any;
 
     ngOnInit(): void {
-        this.employeeDataList = JSON.parse(sessionStorage.getItem('employees_Dr_Reddys') || '[]');
-        this.currentUser = JSON.parse(sessionStorage.getItem('user') || '{}');
+        //  Get logged-in user from session storage
+        const userString = sessionStorage.getItem('user');
+        if (userString) {
+            this.loggedInUser = JSON.parse(userString);
+            this.currentUserDetails = { ...this.loggedInUser };
+        }
+
+        this.employeeDataList = JSON.parse(sessionStorage.getItem(`employees_${this.currentUserDetails.companyId}`) || '[]');
         this.filterEmployees();
     }
 
-    filterEmployees() {
-        const isSuperAdmin = this.currentUser?.role === 'Super Admin';
-        const userDetails = this.currentUser;
+    filterEmployees(): void {
+        //  If the logged-in user is a "Super Admin", show all employees.
+        if (this.currentUserDetails && this.currentUserDetails.role === 'Super Admin') {
+            this.filteredEmployees = this.employeeDataList;
+            return;
+        }
 
-        this.filteredEmployees = this.employeeDataList.filter((emp: any) => {
-            console.log(emp, 'emp');
-            if (isSuperAdmin) return true;
+        // [cite: 4, 5, 7] Filtering logic for non-admin users
+        this.filteredEmployees = this.employeeDataList.filter((employee) => {
+            let isVisible = false;
 
-            const isDivisionMatch = emp.division?.some((div: any) => userDetails.division?.includes(div));
-            const isReportee = userDetails.reporteeRolesList?.some((r: any) => r.id === emp?.role?.id);
+            // 1.  Same division employees
+            const userDivisions = this.currentUserDetails.division || [];
+            const employeeDivisions = employee.division || [];
+            const hasCommonDivision = userDivisions.some((div: any) => employeeDivisions.includes(div));
 
-            const stateMatch = userDetails.empWorkStateAdmin && emp?.state?.some((s: any) => userDetails.empWorkState?.some((ws: any) => ws?.regionsPCode === s.regionsPCode));
+            if (!hasCommonDivision) {
+                return false; // If no common division, do not show
+            }
 
-            const districtMatch = userDetails.empWorkDistrictAdmin && emp?.district?.some((d: any) => userDetails.empWorkDistrict?.some((wd: any) => wd?.districtPCode === d.districtPCode));
+            // 2.  Reportee roles list
+            const userReporteeRoles = this.currentUserDetails.reporteeRolesList || [];
+            const employeeRole = employee.role;
 
-            const cityMatch = userDetails.empWorkCityAdmin && emp?.city?.some((c: any) => userDetails.empWorkCity?.some((wc: any) => wc?.townshipPCode === c.townshipPCode));
+            const isReportee = userReporteeRoles.some((role: any) => role.id === employeeRole.id);
 
-            return isDivisionMatch && isReportee && (stateMatch || districtMatch || cityMatch);
+            // If the employee is a direct reportee, they are visible
+            if (isReportee) {
+                isVisible = true;
+            }
+
+            // 3.  Location-based access
+            const userStates = this.currentUserDetails.empWorkState || [];
+            const userDistricts = this.currentUserDetails.empWorkDistrict || [];
+            const userCities = this.currentUserDetails.empWorkCity || [];
+
+            const employeeStates = employee.empWorkState || [];
+            const employeeDistricts = employee.empWorkDistrict || [];
+            const employeeCities = employee.empWorkCity || [];
+
+            // Check for state view access
+            if (this.currentUserDetails.empWorkStateAdmin) {
+                //  If user has state admin, they can see employees in the same state, district, or city
+                const hasStateMatch = userStates.some((userState: any) => employeeStates.some((empState: any) => userState.regionsPCode === empState.regionsPCode));
+                const hasDistrictMatch = userDistricts.some((userDistrict: any) =>
+                    employeeDistricts.some((empDistrict: any) => userDistrict.stateRegionPCode === empDistrict.stateRegionPCode && userDistrict.districtPCode === empDistrict.districtPCode)
+                );
+                const hasCityMatch = userCities.some((userCity: any) =>
+                    employeeCities.some((empCity: any) => userCity.stateRegionPCode === empCity.stateRegionPCode && userCity.districtPCode === empCity.districtPCode && userCity.townshipPCode === empCity.townshipPCode)
+                );
+
+                if (hasStateMatch || hasDistrictMatch || hasCityMatch) {
+                    isVisible = true;
+                }
+            } else {
+                //  Specific checks if not a state admin
+                if (this.currentUserDetails.empWorkDistrictAdmin && this.currentUserDetails.empWorkCityAdmin) {
+                    //  District and City Admin
+                    const hasDistrictMatch = userDistricts.some((userDistrict: any) =>
+                        employeeDistricts.some((empDistrict: any) => userDistrict.stateRegionPCode === empDistrict.stateRegionPCode && userDistrict.districtPCode === empDistrict.districtPCode)
+                    );
+                    const hasCityMatch = userCities.some((userCity: any) =>
+                        employeeCities.some((empCity: any) => userCity.stateRegionPCode === empCity.stateRegionPCode && userCity.districtPCode === empCity.districtPCode && userCity.townshipPCode === empCity.townshipPCode)
+                    );
+                    if (hasDistrictMatch || hasCityMatch) {
+                        isVisible = true;
+                    }
+                } else if (this.currentUserDetails.empWorkDistrictAdmin) {
+                    //  District Admin only
+                    const hasDistrictMatch = userDistricts.some((userDistrict: any) =>
+                        employeeDistricts.some((empDistrict: any) => userDistrict.stateRegionPCode === empDistrict.stateRegionPCode && userDistrict.districtPCode === empDistrict.districtPCode)
+                    );
+                    if (hasDistrictMatch) {
+                        isVisible = true;
+                    }
+                } else if (this.currentUserDetails.empWorkCityAdmin) {
+                    //  City Admin only
+                    const hasCityMatch = userCities.some((userCity: any) =>
+                        employeeCities.some((empCity: any) => userCity.stateRegionPCode === empCity.stateRegionPCode && userCity.districtPCode === empCity.districtPCode && userCity.townshipPCode === empCity.townshipPCode)
+                    );
+                    if (hasCityMatch) {
+                        isVisible = true;
+                    }
+                }
+            }
+
+            return isVisible;
         });
     }
 
-    getViewAccess(emp: any): string[] {
-        const viewAccess = [];
-        if (emp.empWorkStateAdmin) viewAccess.push('State View');
-        if (emp.empWorkDistrictAdmin) viewAccess.push('District View');
-        if (emp.empWorkCityAdmin) viewAccess.push('City View');
-        return viewAccess;
+    getDivisionNames(divisions: string[]): string {
+        return divisions ? divisions.join(', ') : '';
+    }
+
+    getRoleName(role: any): string {
+        return role ? role.role : '';
+    }
+
+    getReporteeRoleNames(roles: any[]): string {
+        return roles ? roles.map((role) => role.role).join(', ') : '';
+    }
+
+    getWorkLocationDetails(locations: any[], type: 'state' | 'district' | 'city'): string {
+        if (!locations || locations.length === 0) {
+            return 'N/A';
+        }
+        return locations
+            .map((location) => {
+                if (type === 'state') {
+                    return location.regions;
+                } else if (type === 'district') {
+                    return location.district;
+                } else if (type === 'city') {
+                    return location.township;
+                }
+                return '';
+            })
+            .filter(Boolean)
+            .join(', ');
     }
 }

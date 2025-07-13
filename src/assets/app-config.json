@@ -14,17 +14,17 @@
         { "code": "bn", "name": "Bengali" }
     ],
     "divisions": [
-        { "name": "Cardicare", "code": 1 },
-        { "name": "Lifecare", "code": 2 },
-        { "name": "Pharmacare", "code": 3 },
-        { "name": "Oncare", "code": 4 },
-        { "name": "Synacare", "code": 5 },
-        { "name": "Renal Nephro", "code": 6 },
-        { "name": "CRM Care", "code": 7 },
-        { "name": "Criticalcare", "code": 8 },
-        { "name": "MSN Care", "code": 9 },
-        { "name": "Pharma", "code": 10 },
-        { "name": "Consumer Health", "code": 11 }
+        { "name": "Cardicare", "code": "cardicare" },
+        { "name": "Lifecare", "code": "lifecare" },
+        { "name": "Pharmacare", "code": "pharmacare" },
+        { "name": "Oncare", "code": "oncare" },
+        { "name": "Synacare", "code": "synacare" },
+        { "name": "Renal Nephro", "code": "renal_nephro" },
+        { "name": "CRM Care", "code": "crm_care" },
+        { "name": "Criticalcare", "code": "criticalcare" },
+        { "name": "MSN Care", "code": "msn_care" },
+        { "name": "Pharma", "code": "pharma" },
+        { "name": "Consumer Health", "code": "consumer_health" }
     ],
 
     "subscribedCompanyList": [

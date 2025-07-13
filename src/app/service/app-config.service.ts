@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { IUser } from '../models/user';
-import { ICountry } from '../models/location';
+import { ICountry, IDivisions } from '../models/Ilocation';
 
 export interface AppConfig {
     apiBaseUrl: string;
@@ -12,7 +12,7 @@ export interface AppConfig {
     featureToggle: {
         enableSignup: boolean;
     };
-    divisions: Array<{ name: string; code: number }>;
+    divisions: Array<IDivisions>;
     subscribedCompanyList: Array<IUser>;
     Countries: ICountry[];
 }
@@ -44,15 +44,15 @@ export class AppConfigService {
         return this.config?.apiBaseUrl || null;
     }
 
-    get companyName(): string | null {
-        return this.config?.companyName || null;
+    get companyName(): string {
+        return this.config?.companyName || '';
     }
 
     get subscribedCompanyList(): Array<IUser> | [] {
         return this.config?.subscribedCompanyList || [];
     }
 
-    get divisions(): Array<{ name: string; code: number }>  {
+    get divisions(): Array<IDivisions> | [] {
         return this.config?.divisions || [];
     }
 
