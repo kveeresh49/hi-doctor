@@ -16,7 +16,8 @@ import { SessionStorageService } from '../service/session-storage.service';
                 <i class="pi pi-bars"></i>
             </button>
             <a class="layout-topbar-logo" routerLink="/">
-                <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <img src="/assets/demo/mini_Raptakos_logo.png" width="50px" alt="Company Logo" class="layout-topbar-company-logo" />
+                <!-- <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                         fill-rule="evenodd"
                         clip-rule="evenodd"
@@ -32,13 +33,18 @@ import { SessionStorageService } from '../service/session-storage.service';
                             fill="var(--primary-color)"
                         />
                     </g>
-                </svg>
-                <span>{{ companyUrl }}</span>
+                </svg> -->
             </a>
         </div>
 
         <div class="layout-topbar-actions">
             <div class="layout-config-menu">
+                <div style="color:blue" class="layout-menuitem-text layout-menuitem-root-text layout-menuitem-root-text mt-2">
+                    <span>
+                        <b>{{ this.userName.toLocaleUpperCase() }} </b> ( <b>{{ this.role }} </b>)</span
+                    >
+                </div>
+
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
                 </button>
@@ -67,14 +73,23 @@ export class AppTopbar {
     items!: MenuItem[];
     companyUrl: string;
     role: string;
+    userName: string = '';
 
     constructor(
         public layoutService: LayoutService,
-        private sessionStorage: SessionStorageService,
+        private sessionStorage1: SessionStorageService,
         private router: Router
     ) {
-        this.companyUrl = this.sessionStorage.getObject('user').companyUrl;
-        this.role  = this.sessionStorage.getObject('user').role;
+        const currentUser = JSON.parse(sessionStorage.getItem('user') || '{}');
+        this.companyUrl = currentUser.companyUrl;
+        this.role = currentUser.role;
+        if (currentUser.username) {
+            this.userName = currentUser.username;
+        } else {
+            if (currentUser.firstName) {
+                this.userName = currentUser.firstName;
+            }
+        }
     }
 
     toggleDarkMode() {
@@ -82,8 +97,8 @@ export class AppTopbar {
     }
 
     logOut() {
-       // this.sessionStorage.clearSession();
-        this.sessionStorage.removeItem('user');
+        // this.sessionStorage.clearSession();
+        sessionStorage.removeItem('user');
         this.router.navigate(['/login']);
     }
 }
