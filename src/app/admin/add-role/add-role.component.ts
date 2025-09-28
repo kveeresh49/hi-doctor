@@ -53,6 +53,7 @@ export class AddRoleComponent {
 
     saveRoles() {
         sessionStorage.setItem(this.storageKey, JSON.stringify(this.roles));
+        // space added
     }
 
     onSubmit() {
