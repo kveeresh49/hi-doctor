@@ -3,7 +3,7 @@
     "version": 1,
     "newProjectRoot": "projects",
     "projects": {
-        "hi_doctor": {
+        "hi-doctor": {
             "projectType": "application",
             "schematics": {
                 "@schematics/angular:component": {
@@ -65,10 +65,10 @@
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "configurations": {
                         "production": {
-                            "buildTarget": "hi_doctor:build:production"
+                            "buildTarget": "hi-doctor:build:production"
                         },
                         "development": {
-                            "buildTarget": "hi_doctor:build:development"
+                            "buildTarget": "hi-doctor:build:development"
                         }
                     },
                     "defaultConfiguration": "development"
