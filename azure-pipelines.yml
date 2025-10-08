@@ -1,0 +1,26 @@
+trigger:
+- develop
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '20.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    npm install -g @angular/cli
+    npm install --legacy-peer-deps
+  displayName: 'Install Packages'
+
+- script: npm run build
+  displayName: 'Build Angular Application'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: 'dist/hi-doctor/browser'
+    artifactName: 'drop'
+    publishLocation: 'Container'
+  displayName: 'Publish Angular Build Artifact'
