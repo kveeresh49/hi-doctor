@@ -28,10 +28,10 @@
     ],
 
     "subscribedCompanyList": [
-        { "companyName": "Dr.Reddys", "companyId": "Dr_Reddys", "username": "admin", "password": "admin", "role": "Super Admin" },
-        { "companyName": "Raptakos, Brett & Co. Ltd.", "companyId": "Raptakos_Brett", "username": "admin", "password": "admin", "role": "Super Admin" },
-        { "companyName": "Sun Pharma", "companyId": "Sun_Pharma", "username": "admin", "password": "admin", "role": "Super Admin" },
-        { "companyName": "Cipla", "companyId": "Cipla", "username": "admin", "password": "admin", "role": "Super Admin" }
+        { "companyName": "Dr.Reddys", "companyId": "Dr_Reddys", "username": "admin", "password": "admin", "role": "Super Admin", "db":"Dr_Reddys" },
+        { "companyName": "Raptakos, Brett & Co. Ltd.", "companyId": "Raptakos_Brett", "username": "admin", "password": "admin", "role": "Super Admin", "db":"Raptakos_Brett" },
+        { "companyName": "Sun Pharma", "companyId": "Sun_Pharma", "username": "admin", "password": "admin", "role": "Super Admin", "db":"Sun_Pharma" },
+        { "companyName": "Cipla", "companyId": "Cipla", "username": "admin", "password": "admin", "role": "Super Admin", "db":"cipla" }
     ],
 
     "Countries": [{ "label": "Myanmar", "value": "MY" }]

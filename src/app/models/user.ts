@@ -5,4 +5,5 @@ export interface IUser {
     password: 'string';
     role: 'string';
     companyName: 'string';
+    db:string;
 }

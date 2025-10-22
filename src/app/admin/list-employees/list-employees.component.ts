@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import { IEmployee } from '../../models/Ilocation';
+import { NgxIndexedDBService } from 'ngx-indexed-db';
 
 @Component({
     selector: 'app-list-employess',
@@ -21,6 +22,12 @@ export class ListEmployeesComponent implements OnInit {
     filteredEmployees: IEmployee[] = [];
     loggedInUser: any;
     currentUserDetails: any;
+    employees: any[] = [];
+
+    constructor(
+        private messageService: MessageService,
+        private dbService: NgxIndexedDBService
+    ) {}
 
     ngOnInit(): void {
         //  Get logged-in user from session storage
@@ -30,8 +37,12 @@ export class ListEmployeesComponent implements OnInit {
             this.currentUserDetails = { ...this.loggedInUser };
         }
 
-        this.employeeDataList = JSON.parse(sessionStorage.getItem(`employees_${this.currentUserDetails.companyId}`) || '[]');
-        this.filterEmployees();
+        this.dbService.getAll('Dr_Reddys_Employees').subscribe((employee: any) => {
+            this.employeeDataList = employee || [];
+            console.log('Loaded employees from IndexedDB:', this.employees);
+            this.filterEmployees();
+        });
+        // this.employeeDataList = JSON.parse(sessionStorage.getItem(`employees_${this.currentUserDetails.companyId}`) || '[]');
     }
 
     filterEmployees(): void {
@@ -42,12 +53,12 @@ export class ListEmployeesComponent implements OnInit {
         }
 
         // [cite: 4, 5, 7] Filtering logic for non-admin users
-        this.filteredEmployees = this.employeeDataList.filter((employee) => {
+        this.filteredEmployees = this.employeeDataList.filter((employee: any) => {
             let isVisible = false;
 
             // 1.  Same division employees
             const userDivisions = this.currentUserDetails.division || [];
-            const employeeDivisions = employee.division || [];
+            const employeeDivisions = employee.employees.division || [];
             const hasCommonDivision = userDivisions.some((div: any) => employeeDivisions.includes(div));
 
             if (!hasCommonDivision) {
@@ -56,7 +67,7 @@ export class ListEmployeesComponent implements OnInit {
 
             // 2.  Reportee roles list
             const userReporteeRoles = this.currentUserDetails.reporteeRolesList || [];
-            const employeeRole = employee.role;
+            const employeeRole = employee.employees.role;
 
             const isReportee = userReporteeRoles.some((role: any) => role.id === employeeRole.id);
 
@@ -70,9 +81,9 @@ export class ListEmployeesComponent implements OnInit {
             const userDistricts = this.currentUserDetails.empWorkDistrict || [];
             const userCities = this.currentUserDetails.empWorkCity || [];
 
-            const employeeStates = employee.empWorkState || [];
-            const employeeDistricts = employee.empWorkDistrict || [];
-            const employeeCities = employee.empWorkCity || [];
+            const employeeStates = employee.employees.empWorkState || [];
+            const employeeDistricts = employee.employees.empWorkDistrict || [];
+            const employeeCities = employee.employees.empWorkCity || [];
 
             // Check for state view access
             if (this.currentUserDetails.empWorkStateAdmin) {

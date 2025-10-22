@@ -14,6 +14,8 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { AppConfigService } from '../../service/app-config.service';
 import { DivisionComponent } from '../../lib/common/components/division.component';
 import { FileUploadModule } from 'primeng/fileupload';
+import { SessionStorageService } from '../../layout/service/session-storage.service';
+import { NgxIndexedDBService } from 'ngx-indexed-db';
 
 @Component({
     selector: 'app-employee-signup',
@@ -32,19 +34,18 @@ export class EmployeeSignupComponent implements OnInit {
     employeeRoles = [];
     roles: Role[] = [];
     employees: any[] = [];
+    employeesData: any[] = [];
 
     constructor(
         private fb: FormBuilder,
         private messageService: MessageService,
-        private configService: AppConfigService
+        private configService: AppConfigService,
+        private sessionStorage: SessionStorageService,
+        private dbService: NgxIndexedDBService
     ) {
         this.loadRoles();
         this.getCountryList();
         this.loadEmployees();
-        const role = JSON.parse(sessionStorage.getItem('user') || '{}').role;
-        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-        this.companyId = user?.companyId;
-        console.log('role', role);
     }
 
     get storageKey() {
@@ -75,7 +76,7 @@ export class EmployeeSignupComponent implements OnInit {
             address: ['', Validators.required],
             division: ['', Validators.required],
             experience: ['', Validators.required],
-            companyId : [this.companyId],
+            companyId: [this.companyId],
             company: [this.company],
             resume: [''],
             profilePic: [''],
@@ -91,29 +92,42 @@ export class EmployeeSignupComponent implements OnInit {
     }
 
     loadRoles() {
-        const saved = sessionStorage.getItem(this.storageKey);
-        this.roles = saved ? JSON.parse(saved) : [];
+        const siteName = this.sessionStorage.getSite();
+        this.dbService.getAll(`${siteName}_roles`).subscribe((result: any) => {
+            this.roles = result || [];
+        });
     }
 
     loadEmployees() {
-        const saved = sessionStorage.getItem(this.employeeStorageKey);
-        this.employees = saved ? JSON.parse(saved) : [];
+        this.dbService.getAll('Dr_Reddys_Employees').subscribe((employee: any) => {
+            this.employees = employee || [];
+        });
     }
 
-    saveEmployees() {
-        sessionStorage.setItem(this.employeeStorageKey, JSON.stringify(this.employees));
+    saveEmployees(newEmployee: any) {
+        this.dbService
+            .bulkAdd('Dr_Reddys_Employees', [
+                {
+                    employees: { ...newEmployee }
+                }
+            ])
+            .subscribe((result) => {
+                console.log('result: ', result);
+            });
+
+        this.loadEmployees();
     }
 
     onSubmit(): void {
         if (this.employeeForm.valid) {
+            console.log(this.employeeForm.value);
             const email = this.employeeForm.get('email')?.value.trim().toLowerCase();
-            if (this.employees.some((emp) => emp.email.toLowerCase() === email)) {
+            if (this.employees.some((emp) => emp.employees.email.toLowerCase() === email)) {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Email must be unique!' });
                 return;
             }
             const newEmployee = { ...this.employeeForm.value };
-            this.employees.push(newEmployee);
-            this.saveEmployees();
+            this.saveEmployees(newEmployee);
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Employee saved successfully!' });
             this.employeeForm.reset();
         } else {

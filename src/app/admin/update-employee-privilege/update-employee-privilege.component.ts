@@ -9,10 +9,11 @@ import { StateComponent } from '../../lib/common/components/state.component';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { NgxIndexedDBService } from 'ngx-indexed-db';
 
 @Component({
     selector: 'app-update-employee-privilege',
-    imports: [ReactiveFormsModule, DivisionComponent, ToastModule,MultiSelectModule, CityComponent, DistrictComponent, StateComponent, CheckboxModule],
+    imports: [ReactiveFormsModule, DivisionComponent, ToastModule, MultiSelectModule, CityComponent, DistrictComponent, StateComponent, CheckboxModule],
     templateUrl: './update-employee-privilege.component.html',
     providers: [MessageService],
     styleUrls: ['./update-employee-privilege.component.scss']
@@ -42,10 +43,10 @@ export class UpdateEmployeePrivilegeComponent implements OnInit, OnChanges {
     ];
     reporteeRoles: any[] = [];
 
-
     constructor(
         private fb: FormBuilder,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private dbService: NgxIndexedDBService
     ) {}
 
     get employeeStorageRole() {
@@ -139,17 +140,19 @@ export class UpdateEmployeePrivilegeComponent implements OnInit, OnChanges {
             console.error('No employee selected for updating division.');
             return;
         }
-        const employees = JSON.parse(sessionStorage.getItem(`employees_${this.companyId}`) || '[]');
-        employees.forEach((emp: any) => {
-            if (emp.email === this.selectedEmployee?.email) {
-                emp.division = [...this.privilegeForm.get('division')?.getRawValue()];
-            }
-        });
-        sessionStorage.setItem(`employees_${this.companyId}`, JSON.stringify(employees));
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: `Employee Division details updated successfully.`
+        this.dbService.getByID('Dr_Reddys_Employees', this.selectedEmployee.id).subscribe((empRecord: any) => {
+            console.log('Fetched employee record for update:', empRecord);
+            empRecord.employees.division = [...this.privilegeForm.get('division')?.getRawValue()];
+
+            this.dbService.update('Dr_Reddys_Employees', empRecord).subscribe((updatedRecord) => {
+                console.log('Employee record updated successfully in IndexedDB:', updatedRecord);
+            });
+
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: `Employee Division details updated successfully.`
+            });
         });
     }
 
@@ -170,34 +173,39 @@ export class UpdateEmployeePrivilegeComponent implements OnInit, OnChanges {
     }
 
     updateEmployeeLocation() {
-        if (this.privilegeForm.valid) {
-            const employees = JSON.parse(sessionStorage.getItem(`employees_${this.companyId}`) || '[]');
-            employees.forEach((emp: any) => {
-                if (emp.email === this.selectedEmployee?.email) {
-                    if (this.privilegeForm.get('state')?.value?.length > 0) {
-                        emp.empWorkState = [...this.privilegeForm.get('state')?.getRawValue()];
-                    }
-                    if (this.privilegeForm.get('district')?.value?.length > 0) {
-                        emp.empWorkDistrict = [...this.privilegeForm.get('district')?.getRawValue()];
-                    }
-                    if (this.privilegeForm.get('city')?.value?.length > 0) {
-                        emp.empWorkCity = [...this.privilegeForm.get('city')?.getRawValue()];
-                    }
-                    const { stateAdmin, districtAdmin, cityAdmin } = { stateAdmin: this.privilegeForm.get('stateAdmin')?.value, districtAdmin: this.privilegeForm.get('districtAdmin')?.value, cityAdmin: this.privilegeForm.get('cityAdmin')?.value };
-                    emp['empWorkStateAdmin'] = stateAdmin;
-                    emp['empWorkDistrictAdmin'] = districtAdmin;
-                    emp['empWorkCityAdmin'] = cityAdmin;
-                    emp['reporteeRolesList'] = this.privilegeForm.get('reporteeRolesList')?.value || [];
-                }
-            });
-            sessionStorage.setItem(`employees_${this.companyId}`, JSON.stringify(employees));
+        this.dbService.getByID('Dr_Reddys_Employees', this.selectedEmployee.id).subscribe((empRecord: any) => {
+            console.log('Fetched employee record for update:', empRecord);
 
-            this.messageService.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: `Employee Details updated successfully.`
+            var emp = empRecord?.employees;
+            if (this.privilegeForm.get('state')?.value?.length > 0) {
+                emp.empWorkState = [...this.privilegeForm.get('state')?.getRawValue()];
+            }
+            if (this.privilegeForm.get('district')?.value?.length > 0) {
+                emp.empWorkDistrict = [...this.privilegeForm.get('district')?.getRawValue()];
+            }
+            if (this.privilegeForm.get('city')?.value?.length > 0) {
+                emp.empWorkCity = [...this.privilegeForm.get('city')?.getRawValue()];
+            }
+            const { stateAdmin, districtAdmin, cityAdmin } = { stateAdmin: this.privilegeForm.get('stateAdmin')?.value, districtAdmin: this.privilegeForm.get('districtAdmin')?.value, cityAdmin: this.privilegeForm.get('cityAdmin')?.value };
+            emp['empWorkStateAdmin'] = stateAdmin;
+            emp['empWorkDistrictAdmin'] = districtAdmin;
+            emp['empWorkCityAdmin'] = cityAdmin;
+            emp['reporteeRolesList'] = this.privilegeForm.get('reporteeRolesList')?.value || [];
+
+            this.dbService.update('Dr_Reddys_Employees', empRecord).subscribe(() => {
+                console.log('✅ Employee record updated successfully in IndexedDB');
             });
-        }
+        });
+
+        this.dbService.update('Dr_Reddys_Employees', this.selectedEmployee.id).subscribe((updatedRecord) => {
+            console.log('Employee record updated successfully in IndexedDB:', updatedRecord);
+        });
+
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: `Employee Details updated successfully.`
+        });
     }
 
     close() {

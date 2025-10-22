@@ -7,10 +7,14 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TableModule } from 'primeng/table';
+import { SessionStorageService } from '../../layout/service/session-storage.service';
+import { NgxIndexedDBService } from 'ngx-indexed-db';
+import { RolesData_Constants } from '../../constant';
 
 export interface Role {
     id: string;
     role: string;
+    roleDescription: string;
 }
 
 @Component({
@@ -25,20 +29,25 @@ export class AddRoleComponent {
     company = ''; // You can set this dynamically based on login
     roleForm: FormGroup;
     roles: Role[] = [];
-    companyId:string = '';
+    companyId: string = '';
+    currentSite!: string;
 
     constructor(
         private fb: FormBuilder,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private sessionStorage: SessionStorageService,
+        private dbService: NgxIndexedDBService
     ) {
+        this.currentSite = this.sessionStorage.getSite();
         this.roleForm = this.fb.group({
-            role: ['', Validators.required]
+            role: ['', Validators.required],
+            roleDescription: ['', Validators.required] // <-- NEW FORM CONTROL
         });
-        this.loadRoles();
+        this.getRoles();
     }
 
     get storageKey() {
-         if (sessionStorage) {
+        if (sessionStorage) {
             const user = JSON.parse(sessionStorage.getItem('user') || '{}');
             this.companyId = user?.companyId;
             this.company = user?.companyUrl;
@@ -46,26 +55,36 @@ export class AddRoleComponent {
         return `roles_${this.companyId}`;
     }
 
-    loadRoles() {
-        const saved = sessionStorage.getItem(this.storageKey);
-        this.roles = saved ? JSON.parse(saved) : [];
-    }
-
-    saveRoles() {
-        sessionStorage.setItem(this.storageKey, JSON.stringify(this.roles));
-        // space added
+    getRoles() {
+        this.dbService.getAll('Dr_Reddys_roles').subscribe((result: any) => {
+            this.roles = result || [];
+        });
     }
 
     onSubmit() {
         if (this.roleForm.valid) {
             const roleName = this.roleForm.get('role')?.value.trim();
+            const roleDescription = this.roleForm.get('roleDescription')?.value.trim(); // <-- GET NEW FIELD
             if (roleName && !this.roles.some((r) => r.role.toLowerCase() === roleName.toLowerCase())) {
                 const newRole: Role = {
                     id: this.generateId(),
-                    role: roleName
+                    role: roleName,
+                    roleDescription: roleDescription // <-- SAVE NEW FIELD
                 };
-                this.roles.push(newRole);
-                this.saveRoles();
+                this.dbService
+                    .bulkAdd('Dr_Reddys_roles', [
+                        {
+                            role: newRole.role,
+                            roleDescription: newRole.roleDescription,
+                            id: newRole.id
+                        }
+                    ])
+                    .subscribe((result) => {
+                        console.log('result: ', result);
+                    });
+
+                this.getRoles();
+
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Role saved successfully!' });
             } else {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Role must be unique!' });
@@ -82,7 +101,34 @@ export class AddRoleComponent {
 
     deleteRole(id: string) {
         this.roles = this.roles.filter((role) => role.id !== id);
-        this.saveRoles();
+        this.dbService.delete('Dr_Reddys_roles', id).subscribe(() => {
+            console.log('Role deleted from IndexedDB');
+        });
+        this.getRoles();
         this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Role deleted successfully!' });
+    }
+
+    getPredefinedRoles() {
+        this.setRoles(RolesData_Constants);
+        this.getRoles();
+    }
+
+    setRoles(roles: Role[]) {
+        roles.forEach((role) => {
+            this.dbService
+                .bulkAdd('Dr_Reddys_roles', [
+                    {
+                        role: role.role,
+                        roleDescription: role.roleDescription,
+                        id: role.id
+                    }
+                ])
+                .subscribe((result) => {
+                    console.log('result: ', result);
+                });
+        });
+        this.dbService.getAll('Dr_Reddys_roles').subscribe((result: any) => {
+            console.log('results: ', result);
+        });
     }
 }

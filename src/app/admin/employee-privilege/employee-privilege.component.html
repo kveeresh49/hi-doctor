@@ -27,10 +27,10 @@
     </ng-template>
     <ng-template pTemplate="body" let-emp>
         <tr>
-            <td>{{ emp.firstName }}</td>
-            <td>{{ emp.lastName }}</td>
-            <td>{{ emp.email }}</td>
-            <td>{{ emp.role?.role }}</td>
+            <td>{{ emp?.employees?.firstName }}</td>
+            <td>{{ emp?.employees?.lastName }}</td>
+            <td>{{ emp?.employees?.email }}</td>
+            <td>{{ emp?.employees?.role?.role }}</td>
             <td>
                 <button class="btn btn-primary" type="button" label="Edit Privileges" (click)="openPrivilegeDialog(emp)">Give Privileges</button>
             </td>
@@ -50,10 +50,10 @@
         </ng-template>
         <ng-template pTemplate="body" let-emp>
             <tr>
-                <td>{{ emp.firstName }}</td>
-                <td>{{ emp.lastName }}</td>
-                <td>{{ emp.email }}</td>
-                <td>{{ emp.role?.role }}</td>
+                <td>{{ emp?.employees?.firstName }}</td>
+                <td>{{ emp?.employees?.lastName }}</td>
+                <td>{{ emp?.employees?.email }}</td>
+                <td>{{ emp?.employees?.role?.role }}</td>
             </tr>
         </ng-template>
     </p-table>

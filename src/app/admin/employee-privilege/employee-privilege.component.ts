@@ -9,6 +9,7 @@ import { AppConfigService } from '../../service/app-config.service';
 import { ButtonModule } from 'primeng/button';
 import { UpdateEmployeePrivilegeComponent } from '../update-employee-privilege/update-employee-privilege.component';
 import { IDivisions } from '../../models/Ilocation';
+import { NgxIndexedDBService } from 'ngx-indexed-db';
 
 @Component({
     selector: 'app-employee-privilege',
@@ -37,7 +38,8 @@ export class EmployeePrivilegeComponent implements OnInit {
 
     constructor(
         private fb: FormBuilder,
-        private configService: AppConfigService
+        private configService: AppConfigService,
+        private dbService: NgxIndexedDBService
     ) {}
 
     get employeeStorageKey() {
@@ -57,29 +59,40 @@ export class EmployeePrivilegeComponent implements OnInit {
         const user = JSON.parse(sessionStorage.getItem('user') || '{}');
         this.companyId = user?.companyId;
         this.company = user?.companyUrl;
-
-        // Now load employees using the correct key
-        this.employees = JSON.parse(sessionStorage.getItem(this.employeeStorageKey) || '[]');
         this.divisions = this.configService.divisions;
-        this.roles = JSON.parse(sessionStorage.getItem(`roles_${this.companyId}`) || '[]');
+
+        this.dbService.getAll('Dr_Reddys_roles').subscribe((result: any) => {
+            this.roles = result || [];
+        });
         this.countries = [{ label: 'Myanmar', value: 'MY' }];
+
         this.filteredEmployees = [...this.employees];
+
+        this.dbService.getAll('Dr_Reddys_Employees').subscribe((employee: any) => {
+            console.log('Loaded employees from IndexedDB:', employee);
+            this.filteredEmployees = [...employee];
+            this.employees = [...employee];
+            this.filterEmployees();
+        });
     }
 
     filterEmployees() {
         // AND condition for division and role filters
-        this.filteredEmployees = this.employees.filter((emp) => {
+        this.filteredEmployees = this.employees.filter((empData: any) => {
+            const emp = empData.employees;
+            if (emp) {
+                const empDivisions = Array.isArray(emp.division) ? emp.division : [emp.division];
+                const divisionMatch = this.selectedDivisions.length === 0 || empDivisions.some((div: any) => this.selectedDivisions.includes(div));
+
+                // Role filter
+                const empRoles = Array.isArray(emp.role) ? emp.role : [emp.role];
+                const selectedRoleIds = this.selectedRoles.map((r: any) => r.id);
+                const roleMatch = this.selectedRoles.length === 0 || empRoles.some((role: any) => selectedRoleIds.includes(role.id));
+
+                // AND condition
+                return divisionMatch && roleMatch;
+            }
             // Division filter
-            const empDivisions = Array.isArray(emp.division) ? emp.division : [emp.division];
-            const divisionMatch = this.selectedDivisions.length === 0 || empDivisions.some((div: any) => this.selectedDivisions.includes(div));
-
-            // Role filter
-            const empRoles = Array.isArray(emp.role) ? emp.role : [emp.role];
-            const selectedRoleIds = this.selectedRoles.map((r: any) => r.id);
-            const roleMatch = this.selectedRoles.length === 0 || empRoles.some((role: any) => selectedRoleIds.includes(role.id));
-
-            // AND condition
-            return divisionMatch && roleMatch;
         });
     }
 

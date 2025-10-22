@@ -16,7 +16,7 @@ import { SessionStorageService } from '../service/session-storage.service';
                 <i class="pi pi-bars"></i>
             </button>
             <a class="layout-topbar-logo" routerLink="/">
-                <img src="/assets/demo/mini_Raptakos_logo.png" width="50px" alt="Company Logo" class="layout-topbar-company-logo" />
+                <img src="./../../../assets/demo/Udpated_Raptakos_logo1.png" width="50px" alt="Company Logo" class="layout-topbar-company-logo" />
                 <!-- <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                         fill-rule="evenodd"

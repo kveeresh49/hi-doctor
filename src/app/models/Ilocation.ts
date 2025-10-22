@@ -159,5 +159,6 @@ export interface IEmployee {
 
 export interface IRole {
     id: string;
+    roleDescription: string;
     role: string;
 }
