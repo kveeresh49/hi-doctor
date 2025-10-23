@@ -1,7 +1,7 @@
 <div class="employee-list-container">
     <h2>Employee List</h2>
 
-    <p-table [value]="filteredEmployees" [paginator]="true" [rows]="10" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowsPerPageOptions]="[10, 25, 50]">
+    <p-table class="p-datatable-table ng-star-inserted" [value]="filteredEmployees" [paginator]="true" [rows]="10" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowsPerPageOptions]="[10, 25, 50]">
         <ng-template pTemplate="header">
             <tr>
                 <th pSortableColumn="firstName">First Name <p-sortIcon field="firstName" /></th>
@@ -45,3 +45,5 @@
         </ng-template>
     </p-table>
 </div>
+
+

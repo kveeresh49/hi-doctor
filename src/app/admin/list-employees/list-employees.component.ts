@@ -12,7 +12,7 @@ import { NgxIndexedDBService } from 'ngx-indexed-db';
 @Component({
     selector: 'app-list-employess',
     standalone: true,
-    imports: [TableModule, ButtonModule, CardModule, ToastModule, CommonModule, TooltipModule],
+    imports: [TableModule, ButtonModule, CardModule, ToastModule, CommonModule, TooltipModule,],
     providers: [MessageService],
     templateUrl: './list-employees.component.html',
     styleUrl: './list-employees.component.scss'
@@ -34,7 +34,7 @@ export class ListEmployeesComponent implements OnInit {
         const userString = sessionStorage.getItem('user');
         if (userString) {
             this.loggedInUser = JSON.parse(userString);
-            this.currentUserDetails = { ...this.loggedInUser };
+            this.currentUserDetails = { ...this.loggedInUser, loginTime: this.loggedInUser.loginTime };
         }
 
         this.dbService.getAll('Dr_Reddys_Employees').subscribe((employee: any) => {

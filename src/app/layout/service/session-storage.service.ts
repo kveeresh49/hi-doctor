@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { NgxIndexedDBService } from 'ngx-indexed-db';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -6,7 +8,7 @@ import { Injectable } from '@angular/core';
 export class SessionStorageService {
     currentCompanyId: string = '';
     currentSite!: string;
-    constructor() {}
+    constructor(private dbService: NgxIndexedDBService) {}
 
     setSite(site: string) {
         sessionStorage.setItem('currentSite', site);
@@ -32,5 +34,11 @@ export class SessionStorageService {
 
     clearSession() {
         sessionStorage.clear();
+    }
+
+    // Index DB Methods
+
+    async getAllEmployees(companyDb: string) {
+       return await firstValueFrom(this.dbService.getAll(`${companyDb}_Employees`));
     }
 }

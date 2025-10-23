@@ -25,7 +25,7 @@
                                 <p-checkbox id="rememberme1" binary class="mr-2"></p-checkbox>
                                 <label for="rememberme1">Remember me</label>
                             </div>
-                            <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
+                            <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" (click)="showPassword()">Forgot password?</span>
                         </div>
                         <p-button label="Sign In" styleClass="w-full" [disabled]="!this.loginForm.valid" (click)="login()"></p-button>
                     </div>
@@ -34,3 +34,13 @@
         </div>
     </div>
 </div>
+
+<p-dialog header="Forget Password ?" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
+    <div class="flex items-center gap-4 mb-4">
+        <label for="username" class="font-semibold w-24">Password :</label>
+        {{this.currentPassword}}
+    </div>
+    <div class="flex justify-end gap-2">
+        <p-button label="Ok" severity="secondary" (click)="visible = false" />
+    </div>
+</p-dialog>

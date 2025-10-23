@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { FormBuilder, FormControlName, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DivisionComponent } from '../../lib/common/components/division.component';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { IDistrict, IRegion } from '../../models/Ilocation';
+import { IRegion } from '../../models/Ilocation';
 import { CityComponent } from '../../lib/common/components/city.component';
 import { DistrictComponent } from '../../lib/common/components/district.component';
 import { StateComponent } from '../../lib/common/components/state.component';

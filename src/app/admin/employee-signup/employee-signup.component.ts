@@ -16,25 +16,23 @@ import { DivisionComponent } from '../../lib/common/components/division.componen
 import { FileUploadModule } from 'primeng/fileupload';
 import { SessionStorageService } from '../../layout/service/session-storage.service';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
+import { PasswordModule } from 'primeng/password';
 
 @Component({
     selector: 'app-employee-signup',
     standalone: true,
-    imports: [CommonModule, InputTextModule, FluidModule, TextareaModule, ButtonModule, SelectModule, FormsModule, TextareaModule, ReactiveFormsModule, ToastModule, CheckboxModule, DivisionComponent, FileUploadModule],
+    imports: [CommonModule, InputTextModule, PasswordModule, FluidModule, TextareaModule, ButtonModule, SelectModule, FormsModule, TextareaModule, ReactiveFormsModule, ToastModule, CheckboxModule, DivisionComponent, FileUploadModule],
     templateUrl: './employee-signup.component.html',
     styleUrl: './employee-signup.component.scss',
     providers: [MessageService]
 })
 export class EmployeeSignupComponent implements OnInit {
-    company = '';
-    companyId: string = '';
-    companyName: string = '';
     employeeForm!: FormGroup;
     companyList: ICountry[] = [];
     employeeRoles = [];
     roles: Role[] = [];
     employees: any[] = [];
-    employeesData: any[] = [];
+    loginUser: any = {};
 
     constructor(
         private fb: FormBuilder,
@@ -43,22 +41,10 @@ export class EmployeeSignupComponent implements OnInit {
         private sessionStorage: SessionStorageService,
         private dbService: NgxIndexedDBService
     ) {
-        this.loadRoles();
+        this.loginUser = this.sessionStorage.getObject('user');
+        this.getRoles(this.loginUser.db);
         this.getCountryList();
-        this.loadEmployees();
-    }
-
-    get storageKey() {
-        if (sessionStorage) {
-            const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-            this.companyId = user?.companyId;
-            this.company = user?.companyUrl;
-        }
-        return `roles_${this.companyId}`;
-    }
-
-    get employeeStorageKey() {
-        return `employees_${this.companyId}`;
+        this.getEmployees(this.loginUser.db);
     }
 
     ngOnInit(): void {
@@ -76,13 +62,13 @@ export class EmployeeSignupComponent implements OnInit {
             address: ['', Validators.required],
             division: ['', Validators.required],
             experience: ['', Validators.required],
-            companyId: [this.companyId],
-            company: [this.company],
+            companyId: this.loginUser.companyId,
+            company: this.loginUser.companyName,
             resume: [''],
             profilePic: [''],
             status: 'Active',
             employeeType: 'Full Time',
-            password: '123456'
+            password: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(10)]]
         });
     }
 
@@ -91,15 +77,14 @@ export class EmployeeSignupComponent implements OnInit {
         this.companyList = this.configService.CompanyList || [];
     }
 
-    loadRoles() {
-        const siteName = this.sessionStorage.getSite();
-        this.dbService.getAll(`${siteName}_roles`).subscribe((result: any) => {
+    getRoles(db: string) {
+        this.dbService.getAll(`${db}_roles`).subscribe((result: any) => {
             this.roles = result || [];
         });
     }
 
-    loadEmployees() {
-        this.dbService.getAll('Dr_Reddys_Employees').subscribe((employee: any) => {
+    getEmployees(db: string) {
+        this.dbService.getAll(`${db}_Employees`).subscribe((employee: any) => {
             this.employees = employee || [];
         });
     }
@@ -114,8 +99,7 @@ export class EmployeeSignupComponent implements OnInit {
             .subscribe((result) => {
                 console.log('result: ', result);
             });
-
-        this.loadEmployees();
+        this.getEmployees(this.loginUser.db);
     }
 
     onSubmit(): void {
