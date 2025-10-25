@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { LayoutService } from '../service/layout.service';
 import { SessionStorageService } from '../service/session-storage.service';
+import { Employee } from '../../models/employee';
 
 @Component({
     selector: 'app-topbar',
@@ -41,7 +42,7 @@ import { SessionStorageService } from '../service/session-storage.service';
             <div class="layout-config-menu">
                 <div style="color:blue" class="layout-menuitem-text layout-menuitem-root-text layout-menuitem-root-text mt-2">
                     <span>
-                        <b>{{ this.userName.toLocaleUpperCase() }} </b> ( <b>{{ this.role }} </b>)</span
+                        <b> <span style="color:red">{{currentUserDetails?.email?.toUpperCase()}}</span> </b> ( <b>{{ this.currentUserDetails?.role?.role?.toUpperCase() }} </b>)</span
                     >
                 </div>
 
@@ -71,25 +72,17 @@ import { SessionStorageService } from '../service/session-storage.service';
 })
 export class AppTopbar {
     items!: MenuItem[];
-    companyUrl: string;
-    role: string;
-    userName: string = '';
+    // companyUrl: string;
+    // role: string;
+    // userName: string = '';
+    currentUserDetails!: Employee;
 
     constructor(
         public layoutService: LayoutService,
-        private sessionStorage1: SessionStorageService,
+        private sessionStorage: SessionStorageService,
         private router: Router
     ) {
-        const currentUser = JSON.parse(sessionStorage.getItem('user') || '{}');
-        this.companyUrl = currentUser.companyUrl;
-        this.role = currentUser.role;
-        if (currentUser.username) {
-            this.userName = currentUser.username;
-        } else {
-            if (currentUser.firstName) {
-                this.userName = currentUser.firstName;
-            }
-        }
+        this.currentUserDetails = sessionStorage.getObject('user')
     }
 
     toggleDarkMode() {

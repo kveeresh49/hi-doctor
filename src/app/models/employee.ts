@@ -35,39 +35,78 @@ export interface City {
   TownshipPCode: string;
 }
 
-export interface Employee {
-  firstname: string;
-  lastname: string;
-  email: string;
-  phone: string;
-  employeeRole: {
-    id: string;
-    role: string;
-  };
-  qualification: string | null;
-  address: string;
-  country: string;
-  state: State[];
-  district: District[];
-  city: City[];
-  division: string[];
-  resume: string | null;
-  profilePic: string | null;
-  areaView: boolean | null; // Corresponds to District-level view
-  areaEdit: boolean | null; // Corresponds to District-level edit
-  stateView: boolean | null; // Corresponds to State-level view
-  stateEdit: boolean | null; // Corresponds to State-level edit
-  cityView: boolean | null; // Corresponds to City/Township-level view
-  cityEdit: boolean | null; // Corresponds to City/Township-level edit
-  employeeStatus: string | null;
-  employeeType: string | null;
-  Password: string | null;
-  companyId?: string; // Added companyId from current user data
-}
+// export interface Employee {
+//   firstname: string;
+//   lastname: string;
+//   email: string;
+//   phone: string;
+//   employeeRole: {
+//     id: string;
+//     role: string;
+//   };
+//   qualification: string | null;
+//   address: string;
+//   country: string;
+//   state: State[];
+//   district: District[];
+//   city: City[];
+//   division: string[];
+//   resume: string | null;
+//   profilePic: string | null;
+//   areaView: boolean | null; // Corresponds to District-level view
+//   areaEdit: boolean | null; // Corresponds to District-level edit
+//   stateView: boolean | null; // Corresponds to State-level view
+//   stateEdit: boolean | null; // Corresponds to State-level edit
+//   cityView: boolean | null; // Corresponds to City/Township-level view
+//   cityEdit: boolean | null; // Corresponds to City/Township-level edit
+//   employeeStatus: string | null;
+//   employeeType: string | null;
+//   Password: string | null;
+//   companyId?: string; // Added companyId from current user data
+// }
 
 // For Reporting Hierarchy
 export interface ReportingRole {
   id: string;
   role: string;
   reporters?: ReportingRole[];
+}
+
+
+export interface Role {
+  role: string;
+  roleDescription: string;
+  id: string;
+}
+
+export interface Employee {
+  siteName: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  qualification: string;
+  role: Role;
+  address: string;
+  division: string[];
+  experience: string;
+  companyId: string;
+  company: string;
+  resume: string;
+  profilePic: string;
+  status: string;
+  employeeType: string;
+  password: string;
+  reporteeRolesList: ReportingRole[];
+  empWorkState: State[];
+  empWorkDistrict: District[];
+  empWorkCity: City[];
+  empWorkStateAdmin: boolean;
+  empWorkDistrictAdmin: boolean;
+  empWorkCityAdmin: boolean;
+}
+
+export interface EmployeeRecord {
+  employees: Employee;
+  id: number;
 }

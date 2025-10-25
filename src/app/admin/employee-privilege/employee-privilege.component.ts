@@ -8,8 +8,9 @@ import { Dialog, DialogModule } from 'primeng/dialog';
 import { AppConfigService } from '../../service/app-config.service';
 import { ButtonModule } from 'primeng/button';
 import { UpdateEmployeePrivilegeComponent } from '../update-employee-privilege/update-employee-privilege.component';
-import { IDivisions } from '../../models/Ilocation';
-import { NgxIndexedDBService } from 'ngx-indexed-db';
+import { IDivisions, IRole } from '../../models/Ilocation';
+import { Employee, EmployeeRecord } from '../../models/employee';
+import { SessionStorageService } from '../../layout/service/session-storage.service';
 
 @Component({
     selector: 'app-employee-privilege',
@@ -19,15 +20,12 @@ import { NgxIndexedDBService } from 'ngx-indexed-db';
     styleUrls: ['./employee-privilege.component.scss']
 })
 export class EmployeePrivilegeComponent implements OnInit {
-    employees: any[] = [];
-    filteredEmployees: any[] = [];
+    employees: EmployeeRecord[] = [];
+    filteredEmployees: EmployeeRecord[] = [];
     selectedEmployee: any = null;
     showPrivilegeDialog = false;
-    privilegeForm!: FormGroup;
-    companyId: any;
-    company: any;
     divisions: IDivisions[] = [];
-    roles: any;
+    roles: IRole[] = [];
     countries: { label: string; value: string }[] = [];
     selectedDivisions: any[] = [];
     selectedRoles: any[] = [];
@@ -35,43 +33,28 @@ export class EmployeePrivilegeComponent implements OnInit {
     visible: boolean = false;
     selectedEmployeesList: any[] = [];
     selectedEmployeeDivisionList: any[] = [];
+    //
+    currentUserDetails!:Employee;
 
     constructor(
-        private fb: FormBuilder,
         private configService: AppConfigService,
-        private dbService: NgxIndexedDBService
+        private sessionStorage: SessionStorageService,
     ) {}
 
-    get employeeStorageKey() {
-        return `employees_${this.companyId}`;
-    }
-
-    get employeeStorageRole() {
-        if (sessionStorage) {
-            const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-            this.companyId = user?.companyId;
-            this.company = user?.companyUrl;
-        }
-        return `roles_${this.companyId}`;
-    }
-
     ngOnInit() {
-        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-        this.companyId = user?.companyId;
-        this.company = user?.companyUrl;
+        this.currentUserDetails = this.sessionStorage.getObject('user');
         this.divisions = this.configService.divisions;
 
-        this.dbService.getAll('Dr_Reddys_roles').subscribe((result: any) => {
+        this.sessionStorage.getRolesFromIndexDb(this.currentUserDetails.siteName).subscribe((result: IRole[]) => {
             this.roles = result || [];
         });
         this.countries = [{ label: 'Myanmar', value: 'MY' }];
 
         this.filteredEmployees = [...this.employees];
 
-        this.dbService.getAll('Dr_Reddys_Employees').subscribe((employee: any) => {
-            console.log('Loaded employees from IndexedDB:', employee);
-            this.filteredEmployees = [...employee];
-            this.employees = [...employee];
+        this.sessionStorage.getEmployeesFromIndexDb(this.currentUserDetails.siteName).then((employees) => {
+            this.employees = employees || [];
+             this.filteredEmployees = [...employees];
             this.filterEmployees();
         });
     }
@@ -114,29 +97,12 @@ export class EmployeePrivilegeComponent implements OnInit {
         this.selectedEmployee = null;
     }
 
-    savePrivileges() {
-        if (this.privilegeForm.valid && this.selectedEmployee) {
-            // Save privileges for this.selectedEmployee as needed
-            // Example: this.selectedEmployee.privileges = this.privilegeForm.value;
-            this.showPrivilegeDialog = false;
-            alert('Privileges saved for ' + this.selectedEmployee.firstName);
-        }
-    }
 
-    showDialog() {
-        this.visible = true;
-
-        this.employees = JSON.parse(sessionStorage.getItem(this.employeeStorageKey) || '[]');
-        this.filterEmployees(); // Reapply filter if needed
-    }
-
-    openPrivilegeDialog(emp: any): any {
+    openPrivilegeDialog(emp: EmployeeRecord): any {
         this.selectedEmployee = emp;
         this.selectedEmployeesList = [emp];
         console.log('Selected Employee:', this.selectedEmployee);
         this.showPrivilegeDialog = true;
-        this.selectedEmployeeDivisionList = emp.division || [];
-        console.log(this.selectedEmployeeDivisionList, 'selectedEmployeeDivisionList');
     }
 
     close(show: any) {

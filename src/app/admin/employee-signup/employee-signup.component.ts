@@ -17,6 +17,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { SessionStorageService } from '../../layout/service/session-storage.service';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { PasswordModule } from 'primeng/password';
+import { Employee, EmployeeRecord } from '../../models/employee';
 
 @Component({
     selector: 'app-employee-signup',
@@ -31,8 +32,8 @@ export class EmployeeSignupComponent implements OnInit {
     companyList: ICountry[] = [];
     employeeRoles = [];
     roles: Role[] = [];
-    employees: any[] = [];
-    loginUser: any = {};
+    employees: EmployeeRecord[] = [];
+    loginUser: Employee;
 
     constructor(
         private fb: FormBuilder,
@@ -42,9 +43,11 @@ export class EmployeeSignupComponent implements OnInit {
         private dbService: NgxIndexedDBService
     ) {
         this.loginUser = this.sessionStorage.getObject('user');
-        this.getRoles(this.loginUser.db);
+        this.sessionStorage.getRolesFromIndexDb(this.loginUser.siteName).subscribe((result: any) => {
+            this.roles = result || [];
+        });
         this.getCountryList();
-        this.getEmployees(this.loginUser.db);
+        this.getEmployees(this.loginUser.siteName);
     }
 
     ngOnInit(): void {
@@ -55,6 +58,7 @@ export class EmployeeSignupComponent implements OnInit {
         this.employeeForm = this.fb.group({
             firstName: ['', [Validators.required, Validators.minLength(2)]],
             lastName: ['', [Validators.required, Validators.minLength(2)]],
+            fullName: '',
             email: ['', [Validators.required, Validators.email]],
             phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
             qualification: ['', Validators.required],
@@ -63,7 +67,8 @@ export class EmployeeSignupComponent implements OnInit {
             division: ['', Validators.required],
             experience: ['', Validators.required],
             companyId: this.loginUser.companyId,
-            company: this.loginUser.companyName,
+            company: this.loginUser.company,
+            siteName: this.loginUser.siteName,
             resume: [''],
             profilePic: [''],
             status: 'Active',
@@ -77,29 +82,23 @@ export class EmployeeSignupComponent implements OnInit {
         this.companyList = this.configService.CompanyList || [];
     }
 
-    getRoles(db: string) {
-        this.dbService.getAll(`${db}_roles`).subscribe((result: any) => {
-            this.roles = result || [];
-        });
-    }
-
     getEmployees(db: string) {
-        this.dbService.getAll(`${db}_Employees`).subscribe((employee: any) => {
-            this.employees = employee || [];
+        this.sessionStorage.getEmployeesFromIndexDb(this.loginUser.siteName).then((employees) => {
+            this.employees = employees || [];
         });
     }
 
     saveEmployees(newEmployee: any) {
         this.dbService
-            .bulkAdd('Dr_Reddys_Employees', [
+            .bulkAdd(`${this.loginUser.siteName}_Employees`, [
                 {
                     employees: { ...newEmployee }
                 }
             ])
             .subscribe((result) => {
                 console.log('result: ', result);
+                this.getEmployees(this.loginUser.siteName);
             });
-        this.getEmployees(this.loginUser.db);
     }
 
     onSubmit(): void {
@@ -110,6 +109,7 @@ export class EmployeeSignupComponent implements OnInit {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Email must be unique!' });
                 return;
             }
+            this.employeeForm.get('fullName')?.setValue(this.employeeForm.get('firstName')?.value + ' ' + this.employeeForm.get('lastName')?.value);
             const newEmployee = { ...this.employeeForm.value };
             this.saveEmployees(newEmployee);
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Employee saved successfully!' });

@@ -1,49 +1,141 @@
-<div class="employee-list-container">
-    <h2>Employee List</h2>
+<p-table #dt1 [value]="filteredEmployees" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [loading]="false" [paginator]="true">
+    <ng-template #caption>
+        <div class="flex">
+            <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (click)="clear(dt1)" />
+        </div>
+    </ng-template>
+    <ng-template #header>
+        <tr>
+            <th style="min-width: 12rem">
+                <div class="flex items-center">
+                    Name
+                    <p-columnFilter type="text" field="employees.fullName" display="menu" />
+                </div>
+            </th>
+            <th style="min-width: 12rem">
+                <div class="flex items-center">
+                    Email
+                    <p-columnFilter type="text" field="employees.email" display="menu" />
+                </div>
+            </th>
+            <th style="min-width: 7rem">
+                <div class="flex items-center">
+                    Role
+                    <p-columnFilter type="text" field="employees.role.role" display="menu" />
+                </div>
+            </th>
+            <th style="min-width: 3rem">
+                <div class="flex items-center">
+                    IS Reportees
+                    <p-columnFilter type="boolean" field="employees.reporteeRolesList.length" display="menu" />
+                </div>
+            </th>
+            <th style="min-width: 10rem">
+                <div class="flex items-center">
+                    View Access
+                    <p-columnFilter type="text" field="employees.viewAccess" display="menu" />
+                </div>
+            </th>
+            <th style="min-width: 7rem">
+                <div class="flex items-center">
+                    Work State
+                    <p-columnFilter type="text" field="employees.workState" display="menu" />
+                </div>
+            </th>
+            <th style="min-width: 12rem">
+                <div class="flex items-center">
+                    Work District
+                    <p-columnFilter type="text" field="employees.workDistrict" display="menu" />
+                </div>
+            </th>
+            <th style="min-width: 12rem">
+                <div class="flex items-center">
+                    Work City
+                    <p-columnFilter type="text" field="employees.workCity" display="menu" />
+                </div>
+            </th>
+            <th style="min-width: 12rem">
+                <div class="flex items-center">
+                    Reportee Roles
+                    <p-columnFilter type="text" field="employees.reporteeRoles" display="menu" />
+                </div>
+            </th>
+            <th>Actions</th>
+        </tr>
+    </ng-template>
 
-    <p-table class="p-datatable-table ng-star-inserted" [value]="filteredEmployees" [paginator]="true" [rows]="10" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowsPerPageOptions]="[10, 25, 50]">
-        <ng-template pTemplate="header">
-            <tr>
-                <th pSortableColumn="firstName">First Name <p-sortIcon field="firstName" /></th>
-                <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
-                <th pSortableColumn="role">Role <p-sortIcon field="role" /></th>
-                <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
-                <th>View Access</th>
-                <th>Division</th>
-                <th>Work State</th>
-                <th>Work District</th>
-                <th>Work City</th>
-                <th>Reportee Roles</th>
-                <th>Employee Type</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-employee>
-            <tr>
-                <td>{{ employee?.employees?.firstName }}</td>
+    <ng-template #body let-employee>
+        <tr>
+            <td>
+                <span class="block truncate max-w-[10rem]" [pTooltip]="employee.employees.fullName" tooltipPosition="top">
+                    {{ employee.employees.fullName }}
+                </span>
+            </td>
 
-                <td>{{ employee?.employees?.email }}</td>
-                <td>{{ getRoleName(employee?.employees?.role) }}</td>
-                <td>{{ employee?.employees?.status }}</td>
-                <td>
-                    <ng-container *ngIf="employee?.employees?.empWorkStateAdmin">State View</ng-container>
-                    <ng-container *ngIf="employee?.employees?.empWorkDistrictAdmin && !employee?.employees?.empWorkStateAdmin">District View</ng-container>
-                    <ng-container *ngIf="employee?.employees?.empWorkCityAdmin && !employee?.employees?.empWorkStateAdmin && !employee?.employees?.empWorkDistrictAdmin">City View</ng-container>
-                    <ng-container *ngIf="employee?.employees?.empWorkDistrictAdmin && employee?.employees?.empWorkCityAdmin && !employee?.employees?.empWorkStateAdmin">City View, District View</ng-container>
-                </td>
-                <td>{{ getDivisionNames(employee?.employees?.division) }}</td>
-                <td>{{ getWorkLocationDetails(employee?.employees?.empWorkState, 'state') }}</td>
-                <td>{{ getWorkLocationDetails(employee?.employees?.empWorkDistrict, 'district') }}</td>
-                <td>{{ getWorkLocationDetails(employee?.employees?.empWorkCity, 'city') }}</td>
-                <td>{{ getReporteeRoleNames(employee?.employees?.reporteeRolesList) }}</td>
-                <td>{{ employee?.employees?.employeeType }}</td>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="emptyMessage">
-            <tr>
-                <td colspan="11">No employees found matching the criteria.</td>
-            </tr>
-        </ng-template>
-    </p-table>
-</div>
+            <td>
+                <div class="flex items-center gap-2">
+                    <img [alt]="employee.employees.email" src="https://primefaces.org/cdn/primeng/images/demo/avatar/ionibowcher.png" width="32" />
+                    <span class="block truncate max-w-[10rem]" [pTooltip]="employee.employees.email" tooltipPosition="top">
+                        {{ employee.employees.email }}
+                    </span>
+                </div>
+            </td>
 
+            <td>
+                <span class="block truncate max-w-[10rem]" [pTooltip]="employee.employees.role.role" tooltipPosition="top">
+                    {{ employee.employees.role.role }}
+                </span>
+            </td>
 
+            <td>
+                <div class="flex items-center justify-center">
+                    <i
+                        class="pi"
+                        [pTooltip]="employee?.employees?.reporteeRolesList?.length > 0 ? 'Has Reportees' : 'No Reportees'"
+                        tooltipPosition="top"
+                        [ngClass]="{
+                            'text-green-500 pi-check-circle': employee?.employees?.reporteeRolesList?.length > 0,
+                            'text-red-500 pi-times-circle': employee?.employees?.reporteeRolesList?.length === 0 || !employee?.employees?.reporteeRolesList
+                        }"
+                    ></i>
+                </div>
+            </td>
+
+            <td>
+                <ng-container *ngIf="employee?.employees?.empWorkStateAdmin">State View</ng-container>
+                <ng-container *ngIf="employee?.employees?.empWorkDistrictAdmin && !employee?.employees?.empWorkStateAdmin">District View</ng-container>
+                <ng-container *ngIf="employee?.employees?.empWorkCityAdmin && !employee?.employees?.empWorkStateAdmin && !employee?.employees?.empWorkDistrictAdmin">City View</ng-container>
+                <ng-container *ngIf="employee?.employees?.empWorkDistrictAdmin && employee?.employees?.empWorkCityAdmin && !employee?.employees?.empWorkStateAdmin">City View, District View</ng-container>
+                <ng-container *ngIf="!employee?.employees?.empWorkDistrictAdmin && !employee?.employees?.empWorkCityAdmin && !employee?.employees?.empWorkStateAdmin">N/A</ng-container>
+            </td>
+
+            <td>
+                {{ getWorkLocationDetails(employee?.employees?.empWorkState, 'state') }}
+            </td>
+
+            <td>
+                {{ getWorkLocationDetails(employee?.employees?.empWorkDistrict, 'district') }}
+            </td>
+
+            <td>
+                {{ getWorkLocationDetails(employee?.employees?.empWorkCity, 'city') }}
+            </td>
+
+            <td>
+                <span class="block truncate max-w-[10rem]" [pTooltip]="getReporteeRoleNames(employee.employees.reporteeRolesList)" tooltipPosition="top">
+                    {{ getReporteeRoleNames(employee.employees.reporteeRolesList) }}
+                </span>
+            </td>
+
+            <td>
+                <button *ngIf="this.currentUserDetails.role.role == 'Super Admin'" [disabled]="true" pButton type="button" icon="pi pi-trash" class="p-button-danger p-button-sm"></button>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+        <tr>
+            <td colspan="9">No employees found.</td>
+        </tr>
+    </ng-template>
+</p-table>

@@ -21,7 +21,7 @@ export class AppMenu {
     isAdmin: boolean = false;
 
     constructor(private sessionStorage: SessionStorageService) {
-        this.isAdmin = this.sessionStorage?.getObject('user')?.role === 'Super Admin' ? true : false;
+        this.isAdmin = this.sessionStorage?.getObject('user')?.role.role === 'Super Admin' ? true : false;
     }
 
     ngOnInit() {

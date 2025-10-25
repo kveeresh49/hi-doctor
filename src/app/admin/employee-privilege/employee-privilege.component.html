@@ -38,6 +38,8 @@
     </ng-template>
 </p-table>
 
+
+<div *ngIf="showPrivilegeDialog">
 <p-dialog header="Update Employee Privilege" [modal]="true" [(visible)]="showPrivilegeDialog" [style]="{ width: '70rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="true">
     <p-table [value]="selectedEmployeesList" selectionMode="single">
         <ng-template pTemplate="header">
@@ -58,12 +60,14 @@
         </ng-template>
     </p-table>
 
-    <app-update-employee-privilege
-        [email]="selectedEmployee?.email"
-        [companyId]="companyId"
-        [selectedEmployeeDivisionList]="selectedEmployeeDivisionList"
+    <div>
+
+    </div>
+    <app-update-employee-privilege  *ngIf="showPrivilegeDialog"
+        [currentUserDetails]="currentUserDetails"
         [selectedEmployee]="selectedEmployee"
-        [showPrivilegeDialog]="showPrivilegeDialog"
         (closePopup)="close($event)"
     ></app-update-employee-privilege>
 </p-dialog>
+</div>
+

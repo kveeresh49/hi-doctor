@@ -4,7 +4,6 @@ import { LoginComponent } from './app/admin/login/login.component';
 import { DashBoardComponent } from './app/dash-board/dash-board.component';
 import { EmployeeSignupComponent } from './app/admin/employee-signup/employee-signup.component';
 import { ListEmployeesComponent } from './app/admin/list-employees/list-employees.component';
-import { AddRoleComponent } from './app/admin/add-role/add-role.component';
 import { SuperAdminGuard } from './app/service/guards/super-admin.guard';
 import { PermissionDeniedComponent } from './app/lib/common/components/permission-denied/permission-denied.component';
 

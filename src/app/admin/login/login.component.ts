@@ -11,11 +11,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
-import { IUser } from '../../models/user';
 import { ICompany } from '../../models/Ilocation';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { Dialog } from 'primeng/dialog';
-import { firstValueFrom } from 'rxjs';
+import { Employee, EmployeeRecord } from '../../models/employee';
 
 @Component({
     selector: 'app-login',
@@ -28,10 +27,9 @@ import { firstValueFrom } from 'rxjs';
 export class LoginComponent {
     loginForm!: FormGroup;
     companyList!: Array<ICompany[]>;
-    companyId: string = '';
     companyDisplayName: string = '';
     visible = false;
-    employeeList: any[] = [];
+    employeeList: EmployeeRecord    [] = [];
     currentPassword: string = '';
 
     constructor(
@@ -48,76 +46,79 @@ export class LoginComponent {
 
     createForm(): void {
         this.loginForm = this.fb.group({
-            companyName: ['', Validators.required],
+            companySiteName: ['', Validators.required],
             username: ['', Validators.required],
             password: ['']
-        });
-    }
-
-    getEmployees(db: string) {
-        this.dbService.getAll(`${db}_employees`).subscribe((employee: any) => {
-            this.employeeList = employee || [];
         });
     }
 
     login() {
         if (!this.loginForm.valid) {
             this.showError('Please fill in all required fields.');
-            return false;
+            return;
         }
-        const { username, companyName, password } = this.loginForm.value;
-        return this.isAdminLogin(username, password) ? this.handleAdminLogin(username, companyName, password) : this.handleEmployeeLogin(username, companyName, password);
-    }
+        const { username, companySiteName, password } = this.loginForm.value;
 
-    isAdminLogin(username: string, password: string): boolean {
-        return username === 'admin' && password === 'admin';
+        if (this.configService.subscribedCompanyList?.find((user: Employee) => user.siteName !== companySiteName)) {
+            this.showError('Invalid credentials. Please reach out to Admin.');
+            return;
+        }
+
+        if (username === 'admin') {
+            this.handleAdminLogin(username, companySiteName, password);
+        } else {
+            this.handleEmployeeLogin(username, companySiteName, password);
+        }
     }
 
     handleAdminLogin(username: string, companyName: string, password: string) {
-        const adminUser = this.configService.subscribedCompanyList?.find((user: IUser) => user.companyName === companyName && user.username === username && user.password === password);
+        const adminUser: Employee | undefined = this.configService.subscribedCompanyList?.find((user: Employee) => user.siteName === companyName && user.email === username);
 
-        if (!adminUser) {
+        if (!adminUser || adminUser.password !== password) {
             this.showError('Invalid credentials. Please reach out to Admin.');
-            return false;
+            return;
         }
 
-        this.sessionStorage.setSite(adminUser.db);
-        this.saveUserSession(adminUser, 'admin');
+        this.sessionStorage.setSite(adminUser.siteName);
+
+        this.sessionStorage.setObject('user', {
+            ...adminUser,
+            siteName: adminUser.siteName,
+            loginTime: new Date().toISOString()
+        });
         this.router.navigate(['home']);
-        return true;
     }
 
     async handleEmployeeLogin(username: string, companyName: string, password: string): Promise<void> {
         // Load All Employees from IndexDB
-        const employeeList = await this.sessionStorage.getAllEmployees(companyName);
-        if (employeeList) {
-            const matchedEmployee: any = employeeList.find((emp: any) => emp.employees.email === username);
 
-            if (!matchedEmployee || !this.companyId) {
-                this.showError('Invalid credentials. Please reach out to Admin.');
-                return;
+        this.sessionStorage.getEmployeesFromIndexDb(companyName).then(
+            (employees: EmployeeRecord[]) => {
+                this.employeeList = employees || [];
+                const matchedEmployee = this.employeeList.find((emp: EmployeeRecord) => emp.employees.email === username);
+                if (!matchedEmployee) {
+                    this.showError('Invalid credentials. Please reach out to Admin.');
+                    return;
+                }
+                this.sessionStorage.setSite(companyName);
+                this.sessionStorage.setObject('user', {
+                    ...matchedEmployee.employees,
+                    id: matchedEmployee.id,
+                    siteName: matchedEmployee.employees.siteName,
+                    loginTime: new Date().toISOString()
+                });
+
+                this.router.navigate(['home']);
+            },
+            (error) => {
+                this.showError('Error retrieving employee data. Please try again later.');
+                console.error('Error retrieving employee data:', error);
             }
-            this.sessionStorage.setSite(companyName);
-            this.saveUserSession(matchedEmployee, 'user');
-            this.router.navigate(['home']);
-            return;
-        }
-    }
-
-    saveUserSession(user: any, type: string): void {
-        var userObj = {};
-        if (type === 'admin') {
-            userObj = { ...user, companyId: user.companyId, siteId: this.sessionStorage.getSite() };
-        } else {
-            userObj = { ...user.employees, companyId: user.companyId, siteId: this.sessionStorage.getSite() };
-        }
-        this.sessionStorage.setObject('user', {
-            ...userObj,
-            loginTime: new Date().toISOString()
-        });
+        );
     }
 
     showError(message: string): void {
+        this.messageService.clear();
         this.messageService.add({
             severity: 'error',
             summary: 'Error',
@@ -127,37 +128,21 @@ export class LoginComponent {
 
     async showPassword() {
         if (this.loginForm.get('username')?.value === 'admin') {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Please reach out to Admin'
-            });
-
+            this.showError('Please reach out to Admin.');
             return;
-        } else {
-            const exitCompany = this.configService.subscribedCompanyList?.find((user: IUser) => user.companyName === this.loginForm.get('companyName')?.value);
-            if (exitCompany) {
-                const employeeList = await firstValueFrom(this.dbService.getAll(`${exitCompany.db}_Employees`));
-                if (employeeList) {
-                    const exitCompanyUser: any = employeeList.find((emp: any) => emp.employees.email === this.loginForm.get('username')?.value);
-                    if (exitCompanyUser) {
-                        this.currentPassword = exitCompanyUser.employees.password;
-                        this.visible = true;
-                    } else {
-                        this.messageService.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: 'Please reach out to Admin'
-                        });
-                    }
-                }
-            } else {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Please reach out to Admin'
-                });
-            }
         }
+
+        if (this.configService.subscribedCompanyList?.find((user: Employee) => user.siteName !== this.loginForm.get('companySiteName')?.value)) {
+            this.showError('Invalid credentials. Please reach out to Admin.');
+            return;
+        }
+        this.sessionStorage.getEmployeesFromIndexDb(this.loginForm.get('companySiteName')?.value).then((employees: EmployeeRecord[]) => {
+            const exitEmployee: any = employees.find((emp: any) => emp.employees.email === this.loginForm.get('username')?.value);
+            if (!exitEmployee) {
+                this.showError('Invalid credentials. Please reach out to Admin.');
+            }
+            this.currentPassword = exitEmployee?.employees.password;
+            this.visible = true;
+        });
     }
 }

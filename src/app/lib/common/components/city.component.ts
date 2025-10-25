@@ -39,21 +39,21 @@ export class CityComponent implements OnInit, OnChanges {
     cityList: { label: string; value: ITownship }[] = [];
     allCityList: { label: string; value: ITownship }[] = [];
 
-    constructor(private locationService: LocationService) {
+    constructor(private locationService: LocationService) {}
+    ngOnChanges(changes: SimpleChanges): void {
         this.locationService.getCities().subscribe((cities: ITownship[]) => {
             this.allCityList = cities.map((city: ITownship) => ({
                 label: city.township,
                 value: { ...city }
             }));
+            if (this.allCityList.length > 0) {
+                if (changes['selectedCities'] && changes['selectedCities'].currentValue && Array.isArray(changes['selectedCities'].currentValue)) {
+                    const selectedRegionPCodes = changes['selectedCities'].currentValue.map((state: any) => state.districtPCode);
+                    this.cityList = this.allCityList.filter((district: any) => selectedRegionPCodes.includes(district.value['districtPCode']));
+                    console.log('Filtered City List:', this.cityList);
+                }
+            }
         });
-    }
-    ngOnChanges(changes: SimpleChanges): void {
-        this.cityList = [...this.allCityList];
-        if (changes['selectedCities'] && changes['selectedCities'].currentValue && Array.isArray(changes['selectedCities'].currentValue)) {
-            const selectedRegionPCodes = changes['selectedCities'].currentValue.map((state: any) => state.districtPCode);
-            this.cityList = this.cityList.filter((district: any) => selectedRegionPCodes.includes(district.value['districtPCode']));
-            console.log('Filtered City List:', this.cityList);
-        }
     }
 
     ngOnInit(): void {}

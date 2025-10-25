@@ -5,6 +5,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { IUser } from '../models/user';
 import { ICountry, IDivisions } from '../models/Ilocation';
+import { Employee } from '../models/employee';
 
 export interface AppConfig {
     apiBaseUrl: string;
@@ -13,7 +14,7 @@ export interface AppConfig {
         enableSignup: boolean;
     };
     divisions: Array<IDivisions>;
-    subscribedCompanyList: Array<IUser>;
+    subscribedCompanyList: Array<Employee>;
     Countries: ICountry[];
 }
 
@@ -48,7 +49,7 @@ export class AppConfigService {
         return this.config?.companyName || '';
     }
 
-    get subscribedCompanyList(): Array<IUser> | [] {
+    get subscribedCompanyList(): Array<Employee> | [] {
         return this.config?.subscribedCompanyList || [];
     }
 

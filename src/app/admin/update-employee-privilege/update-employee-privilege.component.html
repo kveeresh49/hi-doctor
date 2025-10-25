@@ -1,13 +1,14 @@
 <p-toast></p-toast>
+
 <form [formGroup]="privilegeForm" class="mt-4">
     <div class="flex mb-2" style="margin-top: -0.5rem !important">
         <div class="flex flex-col gap-6 w-full">
             <div class="flex flex-col md:flex-row gap-6">
-                <div class="flex flex-wrap gap-5 w-full">
-                    <app-division [formGroup]="privilegeForm" [divisionName]="'division'" style="display: contents"> </app-division> {{this.privilegeForm.get('division')?.touched}}
+                <div class="flex flex-wrap gap-5 col-md-10">
+                    <app-division [formGroup]="privilegeForm" [divisionName]="'division'" style="display: contents"> </app-division>
                 </div>
 
-                <div class="flex flex-col gap-1">
+                <div class="flex flex-col gap-1 mt-4 pt-2">
                     <button class="btn btn-success" type="button" label="Edit Privileges" [disabled]="!this.privilegeForm.get('division')?.touched" (click)="updateDivision()">Division Update</button>
                 </div>
             </div>
@@ -26,13 +27,13 @@
         <div class="flex flex-col gap-6 w-full mt-3">
             <div class="flex flex-col md:flex-row gap-6">
                 <div class="flex flex-wrap gap-2 w-full">
-                    <app-state [formGroup]="privilegeForm" [controlName]="'state'" (onRegionChangeSateEvent)="onStateChange($event)" style="display: contents"></app-state>
+                    <app-state *ngIf="showFlag" [formGroup]="privilegeForm" [controlName]="'state'" (onRegionChangeSateEvent)="onStateChange($event)" style="display: contents"></app-state>
                 </div>
                 <div class="flex flex-wrap gap-2 w-full">
-                    <app-district [formGroup]="privilegeForm" [controlName]="'district'" (onDistrictChangeEvent)="onDistrictChange($event)" [selectedStates]="selectedStatesList" style="display: contents"></app-district>
+                    <app-district *ngIf="showFlag" [formGroup]="privilegeForm" [controlName]="'district'" (onDistrictChangeEvent)="onDistrictChange($event)" [selectedStates]="this.selectedEmployee.employees.empWorkState" style="display: contents"></app-district>
                 </div>
                 <div class="flex flex-wrap gap-2 w-full">
-                    <app-city [formGroup]="privilegeForm" (onCityChangeEvent)="onCityChange($event)" [selectedCities]="selectedDistricts" style="display: contents"></app-city>
+                    <app-city *ngIf="showFlag" [formGroup]="privilegeForm" (onCityChangeEvent)="onCityChange($event)" [selectedCities]="this.selectedEmployee.employees.empWorkCity" style="display: contents"></app-city>
                 </div>
 
                 <div class="flex flex-wrap gap-2">
@@ -49,8 +50,7 @@
             <button class="btn btn-danger" style="width: 8rem; padding: 4px; margin: 0px; margin-top: 1rem" type="button" label="Edit Privileges" (click)="close()">Close</button>
         </div>
     </div>
-
-    <!-- @if (hasAnyInvalid()) {
+</form>
+<!-- @if (hasAnyInvalid()) {
         <p-message severity="error" size="small" variant="simple"> At least one ingredient must be selected. </p-message>
     } -->
-</form>

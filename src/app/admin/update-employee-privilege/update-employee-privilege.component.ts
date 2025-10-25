@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { FormBuilder, FormControlName, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DivisionComponent } from '../../lib/common/components/division.component';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { IRegion } from '../../models/Ilocation';
+import { IRegion, IRole } from '../../models/Ilocation';
 import { CityComponent } from '../../lib/common/components/city.component';
 import { DistrictComponent } from '../../lib/common/components/district.component';
 import { StateComponent } from '../../lib/common/components/state.component';
@@ -10,97 +10,54 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
+import { Employee, EmployeeRecord, Role } from '../../models/employee';
+import { SessionStorageService } from '../../layout/service/session-storage.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-update-employee-privilege',
-    imports: [ReactiveFormsModule, DivisionComponent, ToastModule, MultiSelectModule, CityComponent, DistrictComponent, StateComponent, CheckboxModule],
+    imports: [ReactiveFormsModule, DivisionComponent,CommonModule, ToastModule, MultiSelectModule, CheckboxModule, StateComponent, CityComponent, DistrictComponent],
     templateUrl: './update-employee-privilege.component.html',
     providers: [MessageService],
     styleUrls: ['./update-employee-privilege.component.scss']
 })
-export class UpdateEmployeePrivilegeComponent implements OnInit, OnChanges {
-    selectedStatesList: any[] = [];
-    districts: any[] = [];
-    cities: any[] = [];
-
-    @Input() companyId: string = '';
-    @Input() email: string = '';
-    @Input() company: string = '';
-    @Input() employee!: any;
+export class UpdateEmployeePrivilegeComponent implements OnInit {
+    @Input() selectedEmployee!: EmployeeRecord;
+    @Input() currentUserDetails!: Employee;
     @Output() closePopup = new EventEmitter<boolean>();
-    privilegeForm!: FormGroup;
-    employees: any[] = [];
-    filteredEmployees: any[] = [];
-    selectedEmployeesList: any[] = [];
-    @Input() selectedEmployeeDivisionList: any[] = [];
-    @Input() selectedEmployee!: any;
-    @Input() showPrivilegeDialog!: boolean;
+    selectedStatesList: IRegion[] = [];
     selectedDistricts: any[] = [];
+    selectedCities: any[] = [];
+
+    privilegeForm!: FormGroup;
+
     locationAdminList = [
         { labelName: 'State Admin', formControlName: 'stateAdmin' },
         { labelName: 'District Admin', formControlName: 'districtAdmin' },
         { labelName: 'City Admin', formControlName: 'cityAdmin' }
     ];
-    reporteeRoles: any[] = [];
+    reporteeRoles: IRole[] = [];
+    showFlag:boolean=false;
 
     constructor(
         private fb: FormBuilder,
         private messageService: MessageService,
+        private sessionStorage: SessionStorageService,
         private dbService: NgxIndexedDBService
-    ) {}
-
-    get employeeStorageRole() {
-        if (sessionStorage) {
-            const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-            this.companyId = user?.companyId;
-            this.company = user?.companyUrl;
-        }
-        return `roles_${this.companyId}`;
+    ) {
+        this.showFlag=true;
     }
 
-    ngOnChanges(changes: SimpleChanges): void {
-        this.reporteeRoles = JSON.parse(sessionStorage?.getItem(`roles_${this.companyId}`) || '[]') || [];
-
-        const isDialogClosed = changes['showPrivilegeDialog']?.currentValue === false;
-
-        if (this.email) {
-            let selectedEmployee = JSON.parse(sessionStorage?.getItem(`employees_${this.companyId}`) || '[]').find((emp: any) => emp.email === this.email);
-            this.reporteeRoles = [...this.reporteeRoles.filter((r: any) => r.id !== this.selectedEmployee?.role?.id)];
-            // Handle selectedEmployeeDivisionList change when dialog is closed and employee hasn't changed
-            if (selectedEmployee && !isDialogClosed) {
-                this.privilegeForm?.get('division')?.setValue(this.selectedEmployeeDivisionList);
-            }
-
-            // Handle employee change when dialog is closed
-            if (selectedEmployee && !isDialogClosed) {
-                const emp = selectedEmployee || {};
-                this.selectedStatesList = emp.empWorkState || [];
-                this.selectedDistricts = emp.empWorkDistrict || [];
-                this.privilegeForm?.patchValue({
-                    division: emp.division || [],
-                    state: emp.empWorkState || [],
-                    district: emp.empWorkDistrict || [],
-                    city: emp.empWorkCity || [],
-                    stateAdmin: emp.empWorkStateAdmin || false,
-                    districtAdmin: emp.empWorkDistrictAdmin || false,
-                    cityAdmin: emp.empWorkCityAdmin || false,
-                    reporteeRolesList: emp.reporteeRolesList || []
-                });
-            }
-
-            // Reset form when dialog is closed
-            if (isDialogClosed) {
-                this.privilegeForm?.reset();
-            }
-        }
+    ngOnInit(): void {
+        this.createForm();
     }
 
-    ngOnInit() {
+    createForm() {
         this.privilegeForm = this.fb.group({
-            division: [this.sanitizeArray(this.employee?.division), Validators.required],
-            state: [this.sanitizeArray(this.employee?.empWorkState), Validators.required],
-            district: [this.sanitizeArray(this.employee?.empWorkDistrict)],
-            city: [this.sanitizeArray(this.employee?.empWorkCity)],
+            division: [this.selectedEmployee.employees.division, Validators.required],
+            state: [this.selectedEmployee.employees.empWorkState, Validators.required],
+            district: [this.selectedEmployee.employees.empWorkDistrict, Validators.required],
+            city: [this.selectedEmployee.employees.empWorkCity, Validators.required],
             stateAdmin: [false],
             districtAdmin: [false],
             cityAdmin: [false],
@@ -126,6 +83,10 @@ export class UpdateEmployeePrivilegeComponent implements OnInit, OnChanges {
                 this.privilegeForm.patchValue({ cityAdmin: true }, { emitEvent: false });
             }
         });
+
+        this.sessionStorage.getRolesFromIndexDb(this.currentUserDetails.siteName).subscribe((roles: IRole[]) => {
+            this.reporteeRoles = roles;
+        });
     }
 
     get formKeys(): string[] {
@@ -140,6 +101,9 @@ export class UpdateEmployeePrivilegeComponent implements OnInit, OnChanges {
             console.error('No employee selected for updating division.');
             return;
         }
+
+        console.log('Selected Employee:', this.selectedEmployee);
+
         this.dbService.getByID('Dr_Reddys_Employees', this.selectedEmployee.id).subscribe((empRecord: any) => {
             console.log('Fetched employee record for update:', empRecord);
             empRecord.employees.division = [...this.privilegeForm.get('division')?.getRawValue()];
@@ -160,7 +124,7 @@ export class UpdateEmployeePrivilegeComponent implements OnInit, OnChanges {
         this.selectedStatesList = this.privilegeForm.get('state')?.value || [];
         this.privilegeForm.get('district')?.reset();
         this.privilegeForm.get('city')?.reset();
-        this.districts = [];
+        //this.districts = [];
     }
 
     onDistrictChange(district: any[]) {
@@ -175,7 +139,6 @@ export class UpdateEmployeePrivilegeComponent implements OnInit, OnChanges {
     updateEmployeeLocation() {
         this.dbService.getByID('Dr_Reddys_Employees', this.selectedEmployee.id).subscribe((empRecord: any) => {
             console.log('Fetched employee record for update:', empRecord);
-
             var emp = empRecord?.employees;
             if (this.privilegeForm.get('state')?.value?.length > 0) {
                 emp.empWorkState = [...this.privilegeForm.get('state')?.getRawValue()];
@@ -191,14 +154,12 @@ export class UpdateEmployeePrivilegeComponent implements OnInit, OnChanges {
             emp['empWorkDistrictAdmin'] = districtAdmin;
             emp['empWorkCityAdmin'] = cityAdmin;
             emp['reporteeRolesList'] = this.privilegeForm.get('reporteeRolesList')?.value || [];
-
             this.dbService.update('Dr_Reddys_Employees', empRecord).subscribe(() => {
                 console.log('✅ Employee record updated successfully in IndexedDB');
             });
-        });
-
-        this.dbService.update('Dr_Reddys_Employees', this.selectedEmployee.id).subscribe((updatedRecord) => {
-            console.log('Employee record updated successfully in IndexedDB:', updatedRecord);
+            this.dbService.update('Dr_Reddys_Employees', this.selectedEmployee.id).subscribe((updatedRecord) => {
+                console.log('Employee record updated successfully in IndexedDB:', updatedRecord);
+            });
         });
 
         this.messageService.add({

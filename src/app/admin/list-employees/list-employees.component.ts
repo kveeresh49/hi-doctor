@@ -1,53 +1,91 @@
 import { Component, OnInit } from '@angular/core';
+import { Table } from 'primeng/table';
+
+import { TagModule } from 'primeng/tag';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { HttpClientModule } from '@angular/common/http';
+import { InputTextModule } from 'primeng/inputtext';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { SelectModule } from 'primeng/select';
+import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
-import { CommonModule } from '@angular/common';
-import { CardModule } from 'primeng/card';
-import { TooltipModule } from 'primeng/tooltip';
-import { IEmployee } from '../../models/Ilocation';
+import { CustomerService } from './customer.service';
+import { SessionStorageService } from '../../layout/service/session-storage.service';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
+import { Employee, EmployeeRecord } from '../../models/employee';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
     selector: 'app-list-employess',
     standalone: true,
-    imports: [TableModule, ButtonModule, CardModule, ToastModule, CommonModule, TooltipModule,],
-    providers: [MessageService],
+    imports: [TableModule, HttpClientModule, TooltipModule, CommonModule, InputTextModule, TagModule, SelectModule, MultiSelectModule, ButtonModule, IconFieldModule, InputIconModule],
+    providers: [CustomerService],
     templateUrl: './list-employees.component.html',
     styleUrl: './list-employees.component.scss'
 })
 export class ListEmployeesComponent implements OnInit {
-    employeeDataList: IEmployee[] = [];
-    filteredEmployees: IEmployee[] = [];
-    loggedInUser: any;
-    currentUserDetails: any;
-    employees: any[] = [];
+    statuses!: any[];
+
+    loading: boolean = true;
+
+    activityValues: number[] = [0, 100];
+
+    searchValue: string | undefined;
+    currentUserDetails!: Employee;
+    employeesList: EmployeeRecord[] = [];
+    employeeDataList: EmployeeRecord[] = [];
+    filteredEmployees: EmployeeRecord[] = [];
 
     constructor(
-        private messageService: MessageService,
-        private dbService: NgxIndexedDBService
-    ) {}
+        private sessionStorage: SessionStorageService    ) {}
 
-    ngOnInit(): void {
-        //  Get logged-in user from session storage
-        const userString = sessionStorage.getItem('user');
-        if (userString) {
-            this.loggedInUser = JSON.parse(userString);
-            this.currentUserDetails = { ...this.loggedInUser, loginTime: this.loggedInUser.loginTime };
-        }
-
-        this.dbService.getAll('Dr_Reddys_Employees').subscribe((employee: any) => {
-            this.employeeDataList = employee || [];
-            console.log('Loaded employees from IndexedDB:', this.employees);
+    ngOnInit() {
+        this.currentUserDetails = this.sessionStorage.getObject('user');
+        this.sessionStorage.getEmployeesFromIndexDb(this.currentUserDetails.siteName).then((employees) => {
+            this.employeeDataList = employees || [];
             this.filterEmployees();
         });
-        // this.employeeDataList = JSON.parse(sessionStorage.getItem(`employees_${this.currentUserDetails.companyId}`) || '[]');
+    }
+
+    async getAllEmployees() {
+        await this.sessionStorage.getAllEmployees(this.currentUserDetails.companyId);
+    }
+
+    clear(table: Table) {
+        table.clear();
+        this.searchValue = '';
+    }
+
+    // EMployee List Code
+
+    getWorkLocationDetails(locations: any[], type: 'state' | 'district' | 'city'): string {
+        if (!locations || locations.length === 0) {
+            return 'N/A';
+        }
+        return locations
+            .map((location) => {
+                if (type === 'state') {
+                    return location.regions;
+                } else if (type === 'district') {
+                    return location.district;
+                } else if (type === 'city') {
+                    return location.township;
+                }
+                return '';
+            })
+            .filter(Boolean)
+            .join(', ');
+    }
+
+    getReporteeRoleNames(roles: any[]): string {
+        return roles ? roles.map((role) => role.role).join(', ') : 'N/A';
     }
 
     filterEmployees(): void {
         //  If the logged-in user is a "Super Admin", show all employees.
-        if (this.currentUserDetails && this.currentUserDetails.role === 'Super Admin') {
+        if (this.currentUserDetails && this.currentUserDetails.role.role === 'Super Admin') {
             this.filteredEmployees = this.employeeDataList;
             return;
         }
@@ -77,16 +115,16 @@ export class ListEmployeesComponent implements OnInit {
             }
 
             // 3.  Location-based access
-            const userStates = this.currentUserDetails.empWorkState || [];
-            const userDistricts = this.currentUserDetails.empWorkDistrict || [];
-            const userCities = this.currentUserDetails.empWorkCity || [];
+            const userStates = this.currentUserDetails?.empWorkState || [];
+            const userDistricts = this.currentUserDetails?.empWorkDistrict || [];
+            const userCities = this.currentUserDetails?.empWorkCity || [];
 
             const employeeStates = employee.employees.empWorkState || [];
             const employeeDistricts = employee.employees.empWorkDistrict || [];
             const employeeCities = employee.employees.empWorkCity || [];
 
             // Check for state view access
-            if (this.currentUserDetails.empWorkStateAdmin) {
+            if (this.currentUserDetails?.empWorkStateAdmin) {
                 //  If user has state admin, they can see employees in the same state, district, or city
                 const hasStateMatch = userStates.some((userState: any) => employeeStates.some((empState: any) => userState.regionsPCode === empState.regionsPCode));
                 const hasDistrictMatch = userDistricts.some((userDistrict: any) =>
@@ -101,7 +139,7 @@ export class ListEmployeesComponent implements OnInit {
                 }
             } else {
                 //  Specific checks if not a state admin
-                if (this.currentUserDetails.empWorkDistrictAdmin && this.currentUserDetails.empWorkCityAdmin) {
+                if (this.currentUserDetails?.empWorkDistrictAdmin && this.currentUserDetails.empWorkCityAdmin) {
                     //  District and City Admin
                     const hasDistrictMatch = userDistricts.some((userDistrict: any) =>
                         employeeDistricts.some((empDistrict: any) => userDistrict.stateRegionPCode === empDistrict.stateRegionPCode && userDistrict.districtPCode === empDistrict.districtPCode)
@@ -112,7 +150,7 @@ export class ListEmployeesComponent implements OnInit {
                     if (hasDistrictMatch || hasCityMatch) {
                         isVisible = true;
                     }
-                } else if (this.currentUserDetails.empWorkDistrictAdmin) {
+                } else if (this.currentUserDetails?.empWorkDistrictAdmin) {
                     //  District Admin only
                     const hasDistrictMatch = userDistricts.some((userDistrict: any) =>
                         employeeDistricts.some((empDistrict: any) => userDistrict.stateRegionPCode === empDistrict.stateRegionPCode && userDistrict.districtPCode === empDistrict.districtPCode)
@@ -120,7 +158,7 @@ export class ListEmployeesComponent implements OnInit {
                     if (hasDistrictMatch) {
                         isVisible = true;
                     }
-                } else if (this.currentUserDetails.empWorkCityAdmin) {
+                } else if (this.currentUserDetails?.empWorkCityAdmin) {
                     //  City Admin only
                     const hasCityMatch = userCities.some((userCity: any) =>
                         employeeCities.some((empCity: any) => userCity.stateRegionPCode === empCity.stateRegionPCode && userCity.districtPCode === empCity.districtPCode && userCity.townshipPCode === empCity.townshipPCode)
@@ -133,36 +171,5 @@ export class ListEmployeesComponent implements OnInit {
 
             return isVisible;
         });
-    }
-
-    getDivisionNames(divisions: string[]): string {
-        return divisions ? divisions.join(', ') : '';
-    }
-
-    getRoleName(role: any): string {
-        return role ? role.role : '';
-    }
-
-    getReporteeRoleNames(roles: any[]): string {
-        return roles ? roles.map((role) => role.role).join(', ') : '';
-    }
-
-    getWorkLocationDetails(locations: any[], type: 'state' | 'district' | 'city'): string {
-        if (!locations || locations.length === 0) {
-            return 'N/A';
-        }
-        return locations
-            .map((location) => {
-                if (type === 'state') {
-                    return location.regions;
-                } else if (type === 'district') {
-                    return location.district;
-                } else if (type === 'city') {
-                    return location.township;
-                }
-                return '';
-            })
-            .filter(Boolean)
-            .join(', ');
     }
 }

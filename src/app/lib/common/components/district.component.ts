@@ -41,30 +41,27 @@ export class DistrictComponent implements OnInit, OnChanges {
     allDistrictList: { label: string; value: IDistrict }[] = [];
 
     constructor(private locationService: LocationService) {
+    }
+    ngOnChanges(changes: SimpleChanges): void {
         this.locationService.getDistricts().subscribe((districts: IDistrict[]) => {
             this.allDistrictList = districts.map((district: IDistrict) => ({
                 label: district.district,
                 value: { ...district }
             }));
-        });
-    }
-    ngOnChanges(changes: SimpleChanges): void {
-        setTimeout(() => {
-            this.districtList = [...this.allDistrictList];
-            console.log('log 2');
-            if (changes['selectedStates'] && changes['selectedStates'].currentValue && Array.isArray(changes['selectedStates'].currentValue)) {
-                const selectedRegionPCodes = changes['selectedStates'].currentValue.map((state: any) => state.regionsPCode);
-                console.log('Selected Region PCodes:', selectedRegionPCodes);
-                this.districtList = this.districtList.filter((district: { label: string; value: IDistrict }) => selectedRegionPCodes.includes(district.value['stateRegionPCode']));
-                console.log('Filtered District List:', this.districtList);
+            if (this.allDistrictList.length > 0) {
+                if (changes['selectedStates'] && changes['selectedStates'].currentValue && Array.isArray(changes['selectedStates'].currentValue)) {
+                    const selectedRegionPCodes = changes['selectedStates'].currentValue.map((state: any) => state.regionsPCode);
+                    console.log('Selected Region PCodes:', selectedRegionPCodes);
+                    this.districtList = this.allDistrictList.filter((district: { label: string; value: IDistrict }) => selectedRegionPCodes.includes(district.value['stateRegionPCode']));
+                    console.log('Filtered District List:', this.districtList);
+                }
             }
-        }, 10);
+        });
     }
 
     ngOnInit(): void {}
 
     onDistrictChange(districts: IRegion[]) {
-        console.log('abc');
         this.onDistrictChangeEvent.emit(districts);
     }
 }

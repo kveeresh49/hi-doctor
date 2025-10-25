@@ -10,6 +10,7 @@ import { TableModule } from 'primeng/table';
 import { SessionStorageService } from '../../layout/service/session-storage.service';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { RolesData_Constants } from '../../constant';
+import { Employee } from '../../models/employee';
 
 export interface Role {
     id: string;
@@ -29,7 +30,7 @@ export class AddRoleComponent {
     company = ''; // You can set this dynamically based on login
     roleForm: FormGroup;
     roles: Role[] = [];
-    companyId: string = '';
+    user: Employee;
     currentSite!: string;
 
     constructor(
@@ -39,6 +40,7 @@ export class AddRoleComponent {
         private dbService: NgxIndexedDBService
     ) {
         this.currentSite = this.sessionStorage.getSite();
+        this.user = sessionStorage.getObject('user');
         this.roleForm = this.fb.group({
             role: ['', Validators.required],
             roleDescription: ['', Validators.required] // <-- NEW FORM CONTROL
@@ -46,18 +48,9 @@ export class AddRoleComponent {
         this.getRoles();
     }
 
-    get storageKey() {
-        if (sessionStorage) {
-            const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-            this.companyId = user?.companyId;
-            this.company = user?.companyUrl;
-        }
-        return `roles_${this.companyId}`;
-    }
-
     getRoles() {
-        this.dbService.getAll('Dr_Reddys_roles').subscribe((result: any) => {
-            this.roles = result || [];
+        this.sessionStorage.getRolesFromIndexDb(this.user.siteName).subscribe((roles) => {
+            this.roles = roles || [];
         });
     }
 
@@ -71,21 +64,12 @@ export class AddRoleComponent {
                     role: roleName,
                     roleDescription: roleDescription // <-- SAVE NEW FIELD
                 };
-                this.dbService
-                    .bulkAdd('Dr_Reddys_roles', [
-                        {
-                            role: newRole.role,
-                            roleDescription: newRole.roleDescription,
-                            id: newRole.id
-                        }
-                    ])
-                    .subscribe((result) => {
-                        console.log('result: ', result);
-                    });
 
-                this.getRoles();
-
-                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Role saved successfully!' });
+                //
+                this.sessionStorage.saveRolesFromIndexDb(newRole, this.user.siteName).subscribe((result) => {
+                    this.getRoles();
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Role saved successfully!' });
+                });
             } else {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Role must be unique!' });
             }
@@ -101,34 +85,24 @@ export class AddRoleComponent {
 
     deleteRole(id: string) {
         this.roles = this.roles.filter((role) => role.id !== id);
-        this.dbService.delete('Dr_Reddys_roles', id).subscribe(() => {
-            console.log('Role deleted from IndexedDB');
+        this.sessionStorage.deleteRoleFromIndexDb(id, this.user.siteName).subscribe((result) => {
+            console.log('Role deleted from IndexedDB:', result);
+            this.getRoles();
+            this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Role deleted successfully!' });
         });
-        this.getRoles();
-        this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Role deleted successfully!' });
     }
 
     getPredefinedRoles() {
-        this.setRoles(RolesData_Constants);
+        this.roles = RolesData_Constants;
+        this.saveRoles(RolesData_Constants);
         this.getRoles();
     }
 
-    setRoles(roles: Role[]) {
+    saveRoles(roles: Role[]) {
         roles.forEach((role) => {
-            this.dbService
-                .bulkAdd('Dr_Reddys_roles', [
-                    {
-                        role: role.role,
-                        roleDescription: role.roleDescription,
-                        id: role.id
-                    }
-                ])
-                .subscribe((result) => {
-                    console.log('result: ', result);
-                });
-        });
-        this.dbService.getAll('Dr_Reddys_roles').subscribe((result: any) => {
-            console.log('results: ', result);
+            this.sessionStorage.saveRolesFromIndexDb(role, this.user.siteName).subscribe((result) => {
+                console.log('Role saved to IndexedDB:', result);
+            });
         });
     }
 }

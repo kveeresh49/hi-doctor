@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
+import { IRole } from '../../models/Ilocation';
+import { Employee, EmployeeRecord } from '../../models/employee';
 
 @Injectable({
     providedIn: 'root'
@@ -39,6 +41,35 @@ export class SessionStorageService {
     // Index DB Methods
 
     async getAllEmployees(companyDb: string) {
-       return await firstValueFrom(this.dbService.getAll(`${companyDb}_Employees`));
+        return await firstValueFrom(this.dbService.getAll(`${companyDb}_Employees`));
+    }
+
+    getEmployeesFromIndexDb(companyDb: string): Promise<any[]> {
+        return firstValueFrom(this.dbService.getAll(`${companyDb}_Employees`));
+    }
+
+    saveEmployeesFromIndexDb(companyDb: string, newEmployee: Employee): Observable<any> {
+        return this.dbService.bulkAdd(`${companyDb}_Employees`, [
+            {
+                employees: { ...newEmployee }
+            }]);
+    }
+
+    getRolesFromIndexDb(companyDb: string): Observable<any> {
+        return this.dbService.getAll(`${companyDb}_Roles`);
+    }
+
+    saveRolesFromIndexDb(role: IRole, companyDb: string): Observable<any> {
+        return this.dbService.bulkAdd(`${companyDb}_Roles`, [
+            {
+                role: role.role,
+                roleDescription: role.roleDescription,
+                id: role.id
+            }
+        ]);
+    }
+
+    deleteRoleFromIndexDb(id: string, companyDb: string): Observable<any> {
+        return this.dbService.delete(`${companyDb}_Roles`, id);
     }
 }

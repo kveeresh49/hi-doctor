@@ -5,7 +5,7 @@ export const dbConfig: DBConfig = {
     version: 1,
     objectStoresMeta: [
         {
-            store: 'Dr_Reddys_roles',
+            store: 'Dr_Reddys_Roles',
             storeConfig: { keyPath: 'id', autoIncrement: false },
             storeSchema: [
                 { name: 'role', keypath: 'role', options: { unique: false } },
@@ -18,7 +18,7 @@ export const dbConfig: DBConfig = {
             storeSchema: [{ name: 'employees', keypath: 'employees', options: { unique: false } }]
         },
         {
-            store: '10w_roles',
+            store: '10w_Roles',
             storeConfig: { keyPath: 'id', autoIncrement: true },
             storeSchema: [{ name: 'employees', keypath: 'employees', options: { unique: false } }]
         },

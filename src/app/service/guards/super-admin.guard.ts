@@ -5,13 +5,13 @@ import { CanActivate, Router } from '@angular/router';
 export class SuperAdminGuard implements CanActivate {
   constructor(private router: Router) {}
 
-  canActivate(): boolean {
+  canActivate() {
     const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-    if (user && user?.role === 'Super Admin') {
+    if (user) {
       return true;
+    } else {
+      this.router.navigate(['/permission-denied']);
+      return false;
     }
-    // Optionally show a message here
-    this.router.navigate(['/permission-denied']);
-    return true;
   }
 }
